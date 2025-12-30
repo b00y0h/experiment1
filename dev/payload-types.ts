@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'analytics-events': AnalyticsEvent;
     experiments: Experiment;
     leads: Lead;
     pages: Page;
@@ -82,6 +83,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'analytics-events': AnalyticsEventsSelect<false> | AnalyticsEventsSelect<true>;
     experiments: ExperimentsSelect<false> | ExperimentsSelect<true>;
     leads: LeadsSelect<false> | LeadsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -126,6 +128,59 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "analytics-events".
+ */
+export interface AnalyticsEvent {
+  id: string;
+  /**
+   * Type of analytics event
+   */
+  eventType: 'impression' | 'conversion' | 'click' | 'custom';
+  /**
+   * Which experiment this event belongs to
+   */
+  experiment?: (string | null) | Experiment;
+  /**
+   * Which variant was shown
+   */
+  variant?: (string | null) | PageVariant;
+  /**
+   * The visitor ID from cookie
+   */
+  visitorId?: string | null;
+  /**
+   * Which page the event occurred on
+   */
+  page?: (string | null) | Page;
+  /**
+   * The blockId for block-level tracking (matches nanoid(12) from blocks)
+   */
+  blockId?: string | null;
+  /**
+   * Custom event name for type="custom" (e.g., "cta_hover", "video_play")
+   */
+  eventName?: string | null;
+  /**
+   * Arbitrary metadata for the event
+   */
+  eventData?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * When the event occurred
+   */
+  timestamp?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -907,6 +962,10 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
+        relationTo: 'analytics-events';
+        value: string | AnalyticsEvent;
+      } | null)
+    | ({
         relationTo: 'experiments';
         value: string | Experiment;
       } | null)
@@ -983,6 +1042,23 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "analytics-events_select".
+ */
+export interface AnalyticsEventsSelect<T extends boolean = true> {
+  eventType?: T;
+  experiment?: T;
+  variant?: T;
+  visitorId?: T;
+  page?: T;
+  blockId?: T;
+  eventName?: T;
+  eventData?: T;
+  timestamp?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

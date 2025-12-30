@@ -2939,3 +2939,253 @@ describe('Visitor variant assignment', () => {
     expect(controlCount).toBeGreaterThanOrEqual(treatmentCount)
   })
 })
+
+describe('AnalyticsEvents collection', () => {
+  let analyticsTestPage: Awaited<ReturnType<typeof payload.create<'pages'>>>
+  let analyticsTestVariant: Awaited<ReturnType<typeof payload.create<'page-variants'>>>
+  let analyticsTestExperiment: Awaited<ReturnType<typeof payload.create<'experiments'>>>
+
+  beforeAll(async () => {
+    // Create test fixtures for AnalyticsEvents tests
+    analyticsTestPage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'analytics-test-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Analytics Test Page',
+          },
+        ],
+        title: 'Analytics Test Page',
+      },
+    })
+
+    analyticsTestVariant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Analytics Test Variant',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/analytics-test', ctaText: 'Analytics CTA' },
+            headline: 'Analytics Test Variant Hero',
+          },
+        ],
+        page: analyticsTestPage.id,
+      },
+    })
+
+    // Need a second variant to create an experiment
+    const secondVariant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Analytics Test Variant B',
+        page: analyticsTestPage.id,
+      },
+    })
+
+    analyticsTestExperiment = await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Analytics Test Experiment',
+        page: analyticsTestPage.id,
+        status: 'running',
+        variants: [
+          { trafficPercent: 50, variant: analyticsTestVariant.id },
+          { trafficPercent: 50, variant: secondVariant.id },
+        ],
+      },
+    })
+  })
+
+  test('creates impression event with experiment attribution', async () => {
+    const event = await payload.create({
+      collection: 'analytics-events',
+      data: {
+        eventType: 'impression',
+        experiment: analyticsTestExperiment.id,
+        page: analyticsTestPage.id,
+        variant: analyticsTestVariant.id,
+        visitorId: 'visitor-impression-123',
+      },
+    })
+
+    expect(event.eventType).toBe('impression')
+    expect(event.visitorId).toBe('visitor-impression-123')
+    // timestamp should be auto-set
+    expect(event.timestamp).toBeDefined()
+    const timestamp = new Date(event.timestamp!)
+    expect(timestamp.getTime()).toBeLessThanOrEqual(Date.now())
+
+    // Verify relationships (may be populated or ID depending on depth)
+    const experimentRef = typeof event.experiment === 'object' ? event.experiment.id : event.experiment
+    expect(experimentRef).toBe(analyticsTestExperiment.id)
+
+    const variantRef = typeof event.variant === 'object' ? event.variant.id : event.variant
+    expect(variantRef).toBe(analyticsTestVariant.id)
+
+    const pageRef = typeof event.page === 'object' ? event.page.id : event.page
+    expect(pageRef).toBe(analyticsTestPage.id)
+  })
+
+  test('creates conversion event', async () => {
+    const event = await payload.create({
+      collection: 'analytics-events',
+      data: {
+        eventType: 'conversion',
+        page: analyticsTestPage.id,
+        visitorId: 'visitor-conversion-456',
+      },
+    })
+
+    expect(event.eventType).toBe('conversion')
+    expect(event.visitorId).toBe('visitor-conversion-456')
+    // timestamp should be auto-set
+    expect(event.timestamp).toBeDefined()
+    const timestamp = new Date(event.timestamp!)
+    expect(timestamp.getTime()).toBeLessThanOrEqual(Date.now())
+  })
+
+  test('creates custom event with blockId and eventData', async () => {
+    const customEventData = {
+      duration: 30,
+      percentWatched: 75,
+    }
+
+    const event = await payload.create({
+      collection: 'analytics-events',
+      data: {
+        blockId: 'abc123xyz789',
+        eventData: customEventData,
+        eventName: 'video_play',
+        eventType: 'custom',
+        visitorId: 'visitor-custom-789',
+      },
+    })
+
+    expect(event.eventType).toBe('custom')
+    expect(event.eventName).toBe('video_play')
+    expect(event.blockId).toBe('abc123xyz789')
+    expect(event.eventData).toEqual(customEventData)
+    expect(event.eventData.duration).toBe(30)
+    expect(event.eventData.percentWatched).toBe(75)
+    expect(event.visitorId).toBe('visitor-custom-789')
+    expect(event.timestamp).toBeDefined()
+  })
+
+  test('queries events by experiment', async () => {
+    // Create a second experiment for filtering test
+    const secondPage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'analytics-filter-test-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Filter Test Page',
+          },
+        ],
+        title: 'Filter Test Page',
+      },
+    })
+
+    const filterVariantA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Filter Variant A',
+        page: secondPage.id,
+      },
+    })
+
+    const filterVariantB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Filter Variant B',
+        page: secondPage.id,
+      },
+    })
+
+    const secondExperiment = await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Filter Test Experiment',
+        page: secondPage.id,
+        status: 'running',
+        variants: [
+          { trafficPercent: 50, variant: filterVariantA.id },
+          { trafficPercent: 50, variant: filterVariantB.id },
+        ],
+      },
+    })
+
+    // Create events for the first experiment
+    await payload.create({
+      collection: 'analytics-events',
+      data: {
+        eventType: 'impression',
+        experiment: analyticsTestExperiment.id,
+        visitorId: 'visitor-filter-1',
+      },
+    })
+
+    await payload.create({
+      collection: 'analytics-events',
+      data: {
+        eventType: 'impression',
+        experiment: analyticsTestExperiment.id,
+        visitorId: 'visitor-filter-2',
+      },
+    })
+
+    // Create events for the second experiment
+    await payload.create({
+      collection: 'analytics-events',
+      data: {
+        eventType: 'impression',
+        experiment: secondExperiment.id,
+        visitorId: 'visitor-filter-3',
+      },
+    })
+
+    // Query events by first experiment
+    const { docs: firstExpEvents } = await payload.find({
+      collection: 'analytics-events',
+      where: {
+        experiment: { equals: analyticsTestExperiment.id },
+      },
+    })
+
+    // Query events by second experiment
+    const { docs: secondExpEvents } = await payload.find({
+      collection: 'analytics-events',
+      where: {
+        experiment: { equals: secondExperiment.id },
+      },
+    })
+
+    // Verify filtering works (first experiment has at least 2 from this test)
+    expect(firstExpEvents.length).toBeGreaterThanOrEqual(2)
+    expect(secondExpEvents.length).toBeGreaterThanOrEqual(1)
+
+    // Verify all events in first query belong to first experiment
+    for (const event of firstExpEvents) {
+      const experimentRef = typeof event.experiment === 'object' ? event.experiment.id : event.experiment
+      expect(experimentRef).toBe(analyticsTestExperiment.id)
+    }
+
+    // Verify all events in second query belong to second experiment
+    for (const event of secondExpEvents) {
+      const experimentRef = typeof event.experiment === 'object' ? event.experiment.id : event.experiment
+      expect(experimentRef).toBe(secondExperiment.id)
+    }
+  })
+})

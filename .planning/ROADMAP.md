@@ -81,7 +81,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 13-01: TBD
+- [x] 13-01: AnalyticsEvents collection with event schema + tests
 
 ### Phase 14: Experiment Dashboard
 
@@ -113,5 +113,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 10. Experiment Collection | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 11. Visitor Assignment | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 12. Lead Capture | v3.0 | 1/1 | Complete | 2025-12-30 |
-| 13. Analytics Events | v3.0 | 0/? | Not started | - |
+| 13. Analytics Events | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 14. Experiment Dashboard | v3.0 | 0/? | Not started | - |
