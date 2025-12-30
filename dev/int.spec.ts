@@ -5,6 +5,8 @@ import { createPayloadRequest, getPayload } from 'payload'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
+import { resolvedPageHandler } from './endpoints/resolvedPage.js'
+import { getResolvedPage } from './utils/getResolvedPage.js'
 import { resolvePageBlocks } from './utils/resolvePageBlocks'
 
 let payload: Payload
@@ -1307,5 +1309,175 @@ describe('Page block resolution', () => {
     // Should have kept the reusableBlockRef since it couldn't be resolved
     expect(resolvedPage.content).toHaveLength(1)
     expect(resolvedPage.content?.[0]?.blockType).toBe('reusableBlockRef')
+  })
+})
+
+describe('Resolved page API', () => {
+  test('getResolvedPage returns resolved page by slug', async () => {
+    // Create ReusableBlock with contentBlock
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'contentBlock',
+            body: {
+              root: {
+                type: 'root',
+                children: [
+                  {
+                    type: 'paragraph',
+                    children: [{ type: 'text', text: 'Content for getResolvedPage test', version: 1 }],
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                version: 1,
+              },
+            },
+          },
+        ],
+        blockType: 'content',
+        title: 'Reusable for getResolvedPage Test',
+      },
+    })
+
+    // Create Page with reusableBlockRef pointing to it
+    await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-get-resolved-page',
+        content: [
+          {
+            block: reusableBlock.id,
+            blockType: 'reusableBlockRef',
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'getResolvedPage Test Hero',
+          },
+        ],
+        title: 'Page for getResolvedPage Test',
+      },
+    })
+
+    // Call getResolvedPage helper
+    const resolvedPage = await getResolvedPage(payload, 'test-get-resolved-page')
+
+    // Verify returns resolved page with inline contentBlock
+    expect(resolvedPage).not.toBeNull()
+    expect(resolvedPage?.slug).toBe('test-get-resolved-page')
+    expect(resolvedPage?.content).toHaveLength(1)
+    expect(resolvedPage?.content?.[0]?.blockType).toBe('contentBlock')
+    expect(resolvedPage?.content?.[0]?._resolvedFrom).toBe(reusableBlock.id)
+  })
+
+  test('getResolvedPage returns null for non-existent slug', async () => {
+    const result = await getResolvedPage(payload, 'does-not-exist-slug')
+    expect(result).toBeNull()
+  })
+
+  test('REST endpoint returns resolved page', async () => {
+    // Create ReusableBlock with accordionBlock
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'accordionBlock',
+            items: [
+              { title: 'REST Endpoint Test Item 1' },
+              { title: 'REST Endpoint Test Item 2' },
+            ],
+          },
+        ],
+        blockType: 'accordion',
+        title: 'Reusable for REST Endpoint Test',
+      },
+    })
+
+    // Create Page with reusableBlockRef
+    await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-rest-endpoint-resolved',
+        content: [
+          {
+            block: reusableBlock.id,
+            blockType: 'reusableBlockRef',
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'REST Endpoint Test Hero',
+          },
+        ],
+        title: 'Page for REST Endpoint Test',
+      },
+    })
+
+    // Create request to test endpoint handler
+    const request = new Request('http://localhost:3000/api/pages/test-rest-endpoint-resolved/resolved', {
+      method: 'GET',
+    })
+
+    const payloadRequest = await createPayloadRequest({ config, request })
+    // Add routeParams manually since createPayloadRequest doesn't parse them from the URL
+    payloadRequest.routeParams = { slug: 'test-rest-endpoint-resolved' }
+
+    const response = await resolvedPageHandler(payloadRequest)
+
+    expect(response.status).toBe(200)
+
+    const data = await response.json()
+    expect(data.slug).toBe('test-rest-endpoint-resolved')
+    expect(data.content).toHaveLength(1)
+    expect(data.content[0].blockType).toBe('accordionBlock')
+    expect(data.content[0]._resolvedFrom).toBe(reusableBlock.id)
+  })
+
+  test('REST endpoint returns 404 for non-existent page', async () => {
+    const request = new Request('http://localhost:3000/api/pages/does-not-exist/resolved', {
+      method: 'GET',
+    })
+
+    const payloadRequest = await createPayloadRequest({ config, request })
+    payloadRequest.routeParams = { slug: 'does-not-exist' }
+
+    const response = await resolvedPageHandler(payloadRequest)
+
+    expect(response.status).toBe(404)
+
+    const data = await response.json()
+    expect(data.error).toBe('Page not found')
+  })
+
+  test('REST endpoint returns 400 for missing slug', async () => {
+    const request = new Request('http://localhost:3000/api/pages//resolved', {
+      method: 'GET',
+    })
+
+    const payloadRequest = await createPayloadRequest({ config, request })
+    // No routeParams.slug set
+
+    const response = await resolvedPageHandler(payloadRequest)
+
+    expect(response.status).toBe(400)
+
+    const data = await response.json()
+    expect(data.error).toBe('Missing slug parameter')
   })
 })

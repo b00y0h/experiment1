@@ -70,7 +70,7 @@ Plans:
 
 Plans:
 - [x] 08-01: Core resolution logic (resolvePageBlocks utility + tests)
-- [ ] 08-02: API endpoints (REST endpoint + Local API helper + tests)
+- [x] 08-02: API endpoints (REST endpoint + Local API helper + tests)
 
 ### Phase 9: Page Variants Shell
 
@@ -97,5 +97,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Block Library Expansion | v2.0 | 1/1 | Complete | 2025-12-30 |
 | 6. Block Settings + Stable IDs | v2.0 | 2/2 | Complete | 2025-12-30 |
 | 7. Validation + Guardrails | v2.0 | 2/2 | Complete | 2025-12-30 |
-| 8. Rendering Contract | v2.0 | 1/2 | In progress | - |
+| 8. Rendering Contract | v2.0 | 2/2 | Complete | 2025-12-30 |
 | 9. Page Variants Shell | v2.0 | 0/? | Not started | - |

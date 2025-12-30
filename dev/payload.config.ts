@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url'
 
 import { Pages } from './collections/Pages.js'
 import { ReusableBlocks } from './collections/ReusableBlocks.js'
+import { resolvedPageHandler } from './endpoints/resolvedPage.js'
 import { testEmailAdapter } from './helpers/testEmailAdapter.js'
 import { seed } from './seed.js'
 
@@ -58,6 +59,13 @@ const buildConfigWithMemoryDB = async () => {
     }),
     editor: lexicalEditor(),
     email: testEmailAdapter,
+    endpoints: [
+      {
+        handler: resolvedPageHandler,
+        method: 'get',
+        path: '/pages/:slug/resolved',
+      },
+    ],
     onInit: async (payload) => {
       await seed(payload)
     },
