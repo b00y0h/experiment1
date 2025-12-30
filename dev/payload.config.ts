@@ -7,6 +7,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { Experiments } from './collections/Experiments.js'
 import { Pages } from './collections/Pages.js'
 import { PageVariants } from './collections/PageVariants.js'
 import { ReusableBlocks } from './collections/ReusableBlocks.js'
@@ -41,6 +42,7 @@ const buildConfigWithMemoryDB = async () => {
       },
     },
     collections: [
+      Experiments,
       Pages,
       PageVariants,
       ReusableBlocks,

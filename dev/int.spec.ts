@@ -2015,3 +2015,297 @@ describe('Page variant preview', () => {
     expect(data.error).toBe('Variant does not belong to this page')
   })
 })
+
+describe('Experiments collection', () => {
+  test('can create experiment with two variants', async () => {
+    // Create a base page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'experiment-test-page-1',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Experiment Test Page',
+          },
+        ],
+        title: 'Experiment Test Page',
+      },
+    })
+
+    // Create two variants for this page
+    const variantA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Variant A',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/a', ctaText: 'A CTA' },
+            headline: 'Variant A Hero',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    const variantB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Variant B',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/b', ctaText: 'B CTA' },
+            headline: 'Variant B Hero',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    // Create experiment with two variants
+    const experiment = await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Homepage Hero Test',
+        page: basePage.id,
+        status: 'draft',
+        variants: [
+          { trafficPercent: 50, variant: variantA.id },
+          { trafficPercent: 50, variant: variantB.id },
+        ],
+      },
+    })
+
+    expect(experiment.name).toBe('Homepage Hero Test')
+    expect(experiment.status).toBe('draft')
+    expect(experiment.variants).toHaveLength(2)
+    expect(experiment.variants?.[0]?.trafficPercent).toBe(50)
+    expect(experiment.variants?.[1]?.trafficPercent).toBe(50)
+  })
+
+  test('rejects traffic percentages not summing to 100 when running', async () => {
+    // Create a base page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'experiment-test-page-2',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Experiment Test Page 2',
+          },
+        ],
+        title: 'Experiment Test Page 2',
+      },
+    })
+
+    // Create two variants
+    const variantA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Variant A Traffic Test',
+        page: basePage.id,
+      },
+    })
+
+    const variantB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Variant B Traffic Test',
+        page: basePage.id,
+      },
+    })
+
+    // Attempt to create experiment with invalid traffic sum when running
+    await expect(
+      payload.create({
+        collection: 'experiments',
+        data: {
+          name: 'Invalid Traffic Test',
+          page: basePage.id,
+          status: 'running', // Running status requires 100% sum
+          variants: [
+            { trafficPercent: 30, variant: variantA.id },
+            { trafficPercent: 30, variant: variantB.id },
+          ],
+        },
+      }),
+    ).rejects.toThrow(/variants/)
+  })
+
+  test('allows non-100% traffic when status is draft', async () => {
+    // Create a base page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'experiment-test-page-3',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Experiment Test Page 3',
+          },
+        ],
+        title: 'Experiment Test Page 3',
+      },
+    })
+
+    // Create two variants
+    const variantA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Variant A Draft Test',
+        page: basePage.id,
+      },
+    })
+
+    const variantB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Variant B Draft Test',
+        page: basePage.id,
+      },
+    })
+
+    // Create experiment with non-100% traffic in draft (should succeed)
+    const experiment = await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Draft Traffic Test',
+        page: basePage.id,
+        status: 'draft', // Draft allows any percentage
+        variants: [
+          { trafficPercent: 20, variant: variantA.id },
+          { trafficPercent: 30, variant: variantB.id },
+        ],
+      },
+    })
+
+    expect(experiment.name).toBe('Draft Traffic Test')
+    expect(experiment.status).toBe('draft')
+    // Total is 50%, which is allowed in draft
+  })
+
+  test('rejects variant from different page', async () => {
+    // Create two pages
+    const pageA = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'experiment-page-a-mismatch',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/a', ctaText: 'A CTA' },
+            headline: 'Page A',
+          },
+        ],
+        title: 'Page A for Mismatch',
+      },
+    })
+
+    const pageB = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'experiment-page-b-mismatch',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/b', ctaText: 'B CTA' },
+            headline: 'Page B',
+          },
+        ],
+        title: 'Page B for Mismatch',
+      },
+    })
+
+    // Create variant for page A
+    const variantForPageA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Variant for Page A',
+        page: pageA.id,
+      },
+    })
+
+    // Create variant for page B
+    const variantForPageB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Variant for Page B',
+        page: pageB.id,
+      },
+    })
+
+    // Attempt to create experiment for page A with variant from page B
+    await expect(
+      payload.create({
+        collection: 'experiments',
+        data: {
+          name: 'Mismatched Variant Test',
+          page: pageA.id,
+          status: 'draft',
+          variants: [
+            { trafficPercent: 50, variant: variantForPageA.id },
+            { trafficPercent: 50, variant: variantForPageB.id }, // Wrong page!
+          ],
+        },
+      }),
+    ).rejects.toThrow(/variants/)
+  })
+
+  test('rejects experiment with single variant', async () => {
+    // Create a base page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'experiment-test-page-single',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Single Variant Test Page',
+          },
+        ],
+        title: 'Single Variant Test Page',
+      },
+    })
+
+    // Create one variant
+    const singleVariant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Single Variant',
+        page: basePage.id,
+      },
+    })
+
+    // Attempt to create experiment with only one variant
+    await expect(
+      payload.create({
+        collection: 'experiments',
+        data: {
+          name: 'Single Variant Experiment',
+          page: basePage.id,
+          status: 'draft',
+          variants: [{ trafficPercent: 100, variant: singleVariant.id }],
+        },
+      }),
+    ).rejects.toThrow(/variants/)
+  })
+})

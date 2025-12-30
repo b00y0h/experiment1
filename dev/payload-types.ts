@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    experiments: Experiment;
     pages: Page;
     'page-variants': PageVariant;
     'reusable-blocks': ReusableBlock;
@@ -80,6 +81,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    experiments: ExperimentsSelect<false> | ExperimentsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'page-variants': PageVariantsSelect<false> | PageVariantsSelect<true>;
     'reusable-blocks': ReusableBlocksSelect<false> | ReusableBlocksSelect<true>;
@@ -122,6 +124,49 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "experiments".
+ */
+export interface Experiment {
+  id: string;
+  /**
+   * Experiment identifier (e.g., "Holiday Hero Test", "CTA Button Color")
+   */
+  name: string;
+  /**
+   * The base page being tested
+   */
+  page: string | Page;
+  /**
+   * Page variants to test with traffic allocation
+   */
+  variants: {
+    /**
+     * The page variant for this test arm
+     */
+    variant: string | PageVariant;
+    /**
+     * Percentage of traffic to send to this variant (0-100)
+     */
+    trafficPercent: number;
+    id?: string | null;
+  }[];
+  /**
+   * Experiment lifecycle state
+   */
+  status?: ('draft' | 'running' | 'paused' | 'completed') | null;
+  /**
+   * When experiment activates (optional, null = manual activation)
+   */
+  startDate?: string | null;
+  /**
+   * When experiment ends (optional, null = no auto-end)
+   */
+  endDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -813,6 +858,10 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
+        relationTo: 'experiments';
+        value: string | Experiment;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: string | Page;
       } | null)
@@ -881,6 +930,26 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "experiments_select".
+ */
+export interface ExperimentsSelect<T extends boolean = true> {
+  name?: T;
+  page?: T;
+  variants?:
+    | T
+    | {
+        variant?: T;
+        trafficPercent?: T;
+        id?: T;
+      };
+  status?: T;
+  startDate?: T;
+  endDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
