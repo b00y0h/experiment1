@@ -48,7 +48,7 @@ Plans:
 
 Plans:
 - [x] 06-01: Shared blockSettings field with nanoid(12) blockIds for Pages blocks
-- [ ] 06-02: Add blockSettings to ReusableBlocks collection
+- [x] 06-02: Add blockSettings to ReusableBlocks collection
 
 ### Phase 7: Validation + Guardrails
 
@@ -95,7 +95,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 3. Reusable Blocks | v1.0 | 1/1 | Complete | 2025-12-30 |
 | 4. Integration | v1.0 | 1/1 | Complete | 2025-12-30 |
 | 5. Block Library Expansion | v2.0 | 1/1 | Complete | 2025-12-30 |
-| 6. Block Settings + Stable IDs | v2.0 | 1/2 | In progress | - |
+| 6. Block Settings + Stable IDs | v2.0 | 2/2 | Complete | 2025-12-30 |
 | 7. Validation + Guardrails | v2.0 | 0/? | Not started | - |
 | 8. Rendering Contract | v2.0 | 0/? | Not started | - |
 | 9. Page Variants Shell | v2.0 | 0/? | Not started | - |

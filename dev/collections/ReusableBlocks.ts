@@ -1,6 +1,48 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { nanoid } from 'nanoid'
+
+import { createBlockSettings } from '../fields/blockSettings'
+
+type BlockWithSettings = {
+  [key: string]: unknown
+  blockType: string
+  settings?: {
+    analyticsLabel?: string
+    blockId?: string
+  }
+}
+
+/**
+ * Collection-level fallback hook that ensures all blocks have a blockId.
+ * Handles edge cases where field-level hooks may not fire.
+ */
+const ensureBlockIds: CollectionBeforeChangeHook = ({ data, operation }) => {
+  if (operation !== 'create' && operation !== 'update') {
+    return data
+  }
+
+  const processBlocks = (blocks: BlockWithSettings[] | undefined): void => {
+    if (!Array.isArray(blocks)) {
+      return
+    }
+
+    for (const block of blocks) {
+      if (!block.settings) {
+        block.settings = {}
+      }
+      if (!block.settings.blockId) {
+        block.settings.blockId = nanoid(12)
+      }
+    }
+  }
+
+  // Process block array
+  processBlocks(data.block as BlockWithSettings[] | undefined)
+
+  return data
+}
 
 export const ReusableBlocks: CollectionConfig = {
   slug: 'reusable-blocks',
@@ -49,6 +91,7 @@ export const ReusableBlocks: CollectionConfig = {
                 },
               ],
             },
+            createBlockSettings(),
           ],
         },
         {
@@ -59,6 +102,7 @@ export const ReusableBlocks: CollectionConfig = {
               type: 'richText',
               editor: lexicalEditor(),
             },
+            createBlockSettings(),
           ],
         },
         {
@@ -68,6 +112,7 @@ export const ReusableBlocks: CollectionConfig = {
               name: 'text',
               type: 'text',
             },
+            createBlockSettings(),
           ],
         },
         {
@@ -89,6 +134,7 @@ export const ReusableBlocks: CollectionConfig = {
                 },
               ],
             },
+            createBlockSettings(),
           ],
         },
         {
@@ -114,9 +160,13 @@ export const ReusableBlocks: CollectionConfig = {
                 },
               ],
             },
+            createBlockSettings(),
           ],
         },
       ],
     },
   ],
+  hooks: {
+    beforeChange: [ensureBlockIds],
+  },
 }

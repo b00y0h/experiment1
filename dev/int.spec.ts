@@ -204,6 +204,115 @@ describe('Pages collection', () => {
   })
 })
 
+describe('Pages blockId generation', () => {
+  test('Pages: blocks get auto-generated blockId on create', async () => {
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-blockid-create',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            headline: 'Test Hero for BlockId',
+          },
+        ],
+        title: 'Test BlockId Create',
+      },
+    })
+
+    expect(page.hero).toHaveLength(1)
+    expect(page.hero?.[0]?.settings?.blockId).toBeDefined()
+    expect(page.hero?.[0]?.settings?.blockId).toHaveLength(12)
+  })
+
+  test('Pages: blockId persists on update (not regenerated)', async () => {
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-blockid-persist',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            headline: 'Original Headline',
+          },
+        ],
+        title: 'Test BlockId Persist',
+      },
+    })
+
+    const originalBlockId = page.hero?.[0]?.settings?.blockId
+    expect(originalBlockId).toBeDefined()
+    expect(originalBlockId).toHaveLength(12)
+
+    // Update the page (change headline)
+    const updatedPage = await payload.update({
+      collection: 'pages',
+      id: page.id,
+      data: {
+        hero: [
+          {
+            ...page.hero?.[0],
+            blockType: 'heroBlock',
+            headline: 'Updated Headline',
+          },
+        ],
+      },
+    })
+
+    // Verify blockId is unchanged
+    expect(updatedPage.hero?.[0]?.settings?.blockId).toBe(originalBlockId)
+    expect(updatedPage.hero?.[0]?.headline).toBe('Updated Headline')
+  })
+
+  test('Pages: user-provided blockId is preserved', async () => {
+    const customBlockId = 'custom-hero-id'
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-blockid-custom',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            headline: 'Custom BlockId Hero',
+            settings: {
+              blockId: customBlockId,
+            },
+          },
+        ],
+        title: 'Test Custom BlockId',
+      },
+    })
+
+    expect(page.hero?.[0]?.settings?.blockId).toBe(customBlockId)
+  })
+})
+
+describe('ReusableBlocks blockId generation', () => {
+  test('ReusableBlocks: blocks get auto-generated blockId', async () => {
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'accordionBlock',
+            items: [
+              {
+                title: 'Accordion Item for BlockId Test',
+              },
+            ],
+          },
+        ],
+        blockType: 'accordion',
+        title: 'Test ReusableBlocks BlockId',
+      },
+    })
+
+    expect(reusableBlock.block).toHaveLength(1)
+    expect(reusableBlock.block?.[0]?.settings?.blockId).toBeDefined()
+    expect(reusableBlock.block?.[0]?.settings?.blockId).toHaveLength(12)
+  })
+})
+
 describe('ReusableBlocks collection', () => {
   test('can create reusable accordion block', async () => {
     const reusableBlock = await payload.create({
