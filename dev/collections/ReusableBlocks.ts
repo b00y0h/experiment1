@@ -58,7 +58,6 @@ export const ReusableBlocks: CollectionConfig = {
     {
       name: 'blockType',
       type: 'select',
-      required: true,
       options: [
         { label: 'Accordion', value: 'accordion' },
         { label: 'Content', value: 'content' },
@@ -66,11 +65,11 @@ export const ReusableBlocks: CollectionConfig = {
         { label: 'Footer', value: 'footer' },
         { label: 'Stats', value: 'stats' },
       ],
+      required: true,
     },
     {
       name: 'block',
       type: 'blocks',
-      maxRows: 1,
       blocks: [
         {
           slug: 'accordionBlock',
@@ -164,6 +163,7 @@ export const ReusableBlocks: CollectionConfig = {
           ],
         },
       ],
+      maxRows: 1,
     },
   ],
   hooks: {

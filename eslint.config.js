@@ -9,6 +9,7 @@ export const defaultESLintIgnores = [
   '**/.hg',
   '**/.pnp.*',
   '**/.svn',
+  '**/.next/',
   '**/playwright.config.ts',
   '**/vitest.config.js',
   '**/tsconfig.tsbuildinfo',
@@ -23,6 +24,7 @@ export const defaultESLintIgnores = [
 ]
 
 export default [
+  { ignores: defaultESLintIgnores },
   ...payloadEsLintConfig,
   {
     rules: {
@@ -34,11 +36,7 @@ export default [
       parserOptions: {
         sourceType: 'module',
         ecmaVersion: 'latest',
-        projectService: {
-          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 40,
-          allowDefaultProject: ['scripts/*.ts', '*.js', '*.mjs', '*.spec.ts', '*.d.ts'],
-        },
-        // projectService: true,
+        project: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },

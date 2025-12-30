@@ -178,13 +178,13 @@ describe('Pages collection', () => {
             blockType: 'statsBlock',
             items: [
               {
-                value: '99%',
-                label: 'Customer Satisfaction',
                 icon: 'star',
+                label: 'Customer Satisfaction',
+                value: '99%',
               },
               {
-                value: '10M+',
                 label: 'Users Worldwide',
+                value: '10M+',
               },
             ],
           },
@@ -246,8 +246,8 @@ describe('Pages blockId generation', () => {
 
     // Update the page (change headline)
     const updatedPage = await payload.update({
-      collection: 'pages',
       id: page.id,
+      collection: 'pages',
       data: {
         hero: [
           {
@@ -481,13 +481,13 @@ describe('ReusableBlocks collection', () => {
             blockType: 'statsBlock',
             items: [
               {
-                value: '500+',
-                label: 'Happy Clients',
                 icon: 'users',
+                label: 'Happy Clients',
+                value: '500+',
               },
               {
-                value: '24/7',
                 label: 'Support',
+                value: '24/7',
               },
             ],
           },
