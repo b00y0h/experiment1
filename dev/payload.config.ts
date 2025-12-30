@@ -7,6 +7,7 @@ import { experiment1 } from 'experiment-1'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { Pages } from './collections/Pages.js'
 import { testEmailAdapter } from './helpers/testEmailAdapter.js'
 import { seed } from './seed.js'
 
@@ -36,6 +37,7 @@ const buildConfigWithMemoryDB = async () => {
       },
     },
     collections: [
+      Pages,
       {
         slug: 'posts',
         fields: [],

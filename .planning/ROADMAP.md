@@ -14,7 +14,7 @@ None
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Foundation** - Page collection with Hero → Content → Footer section structure
+- [x] **Phase 1: Foundation** - Page collection with Hero → Content → Footer section structure
 - [ ] **Phase 2: Block Types** - Core block implementations (Hero, Accordion, FAQ, Stats)
 - [ ] **Phase 3: Reusable Blocks** - Library collection and block reference field
 - [ ] **Phase 4: Integration** - Type generation and test coverage
@@ -52,7 +52,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 1/1 | Complete | 2025-12-30 |
 | 2. Block Types | 0/TBD | Not started | - |
 | 3. Reusable Blocks | 0/TBD | Not started | - |
 | 4. Integration | 0/TBD | Not started | - |
