@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2025-12-30)
 
 **Core value:** Clean, typed content schema that balances editor flexibility with content consistency and developer ergonomics.
-**Current focus:** Planning next milestone
+**Current focus:** v2.0 Page Assembly + Variant Ready
 
 ## Current Position
 
-Phase: v1.0 complete
-Plan: N/A
-Status: Ready to plan next milestone
-Last activity: 2025-12-30 — v1.0 milestone complete
+Phase: 5 of 9 (Block Library Expansion)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2025-12-30 — Milestone v2.0 created
 
-Progress: v1.0 SHIPPED
+Progress: ░░░░░░░░░░ 0%
 
 ## Performance Metrics
 
@@ -45,16 +45,18 @@ Recent decisions affecting current work:
 
 ### Deferred Issues
 
-- FAQ block type (to v1.1)
-- Stats block type (to v1.1)
-- Plugin extraction (future)
+- Plugin extraction (future) — after v2.0 patterns stabilize
 
 ### Blockers/Concerns
 
 None.
 
+## Roadmap Evolution
+
+- Milestone v2.0 created: Page assembly + variant ready, 5 phases (Phase 5-9)
+
 ## Session Continuity
 
 Last session: 2025-12-30
-Stopped at: v1.0 milestone complete
+Stopped at: Milestone v2.0 initialization
 Resume file: None
