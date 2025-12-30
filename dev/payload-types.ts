@@ -138,6 +138,19 @@ export interface Page {
           ctaLink?: string | null;
         };
         media?: (string | null) | Media;
+        /**
+         * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+         */
+        settings?: {
+          /**
+           * Auto-generated stable identifier. Do not modify unless necessary.
+           */
+          blockId?: string | null;
+          /**
+           * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+           */
+          analyticsLabel?: string | null;
+        };
         id?: string | null;
         blockName?: string | null;
         blockType: 'heroBlock';
@@ -161,6 +174,19 @@ export interface Page {
               };
               [k: string]: unknown;
             } | null;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
             id?: string | null;
             blockName?: string | null;
             blockType: 'contentBlock';
@@ -187,12 +213,38 @@ export interface Page {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
             id?: string | null;
             blockName?: string | null;
             blockType: 'accordionBlock';
           }
         | {
             block: string | ReusableBlock;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
             id?: string | null;
             blockName?: string | null;
             blockType: 'reusableBlockRef';
@@ -219,6 +271,19 @@ export interface Page {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
             id?: string | null;
             blockName?: string | null;
             blockType: 'faqBlock';
@@ -232,6 +297,19 @@ export interface Page {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
             id?: string | null;
             blockName?: string | null;
             blockType: 'statsBlock';
@@ -241,6 +319,19 @@ export interface Page {
   footer?:
     | {
         text?: string | null;
+        /**
+         * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+         */
+        settings?: {
+          /**
+           * Auto-generated stable identifier. Do not modify unless necessary.
+           */
+          blockId?: string | null;
+          /**
+           * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+           */
+          analyticsLabel?: string | null;
+        };
         id?: string | null;
         blockName?: string | null;
         blockType: 'footerBlock';
@@ -504,6 +595,12 @@ export interface PagesSelect<T extends boolean = true> {
                     ctaLink?: T;
                   };
               media?: T;
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -515,6 +612,12 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               body?: T;
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -528,6 +631,12 @@ export interface PagesSelect<T extends boolean = true> {
                     content?: T;
                     id?: T;
                   };
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -535,6 +644,12 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               block?: T;
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -547,6 +662,12 @@ export interface PagesSelect<T extends boolean = true> {
                     question?: T;
                     answer?: T;
                     id?: T;
+                  };
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
                   };
               id?: T;
               blockName?: T;
@@ -562,6 +683,12 @@ export interface PagesSelect<T extends boolean = true> {
                     icon?: T;
                     id?: T;
                   };
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -573,6 +700,12 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               text?: T;
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
               id?: T;
               blockName?: T;
             };

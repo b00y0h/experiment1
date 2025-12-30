@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2025-12-30)
 
 ## Current Position
 
-Phase: 5 of 9 (Block Library Expansion)
-Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2025-12-30 — Completed 05-01-PLAN.md
+Phase: 6 of 9 (Block Settings + Stable IDs)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2025-12-30 — Completed 06-01-PLAN.md
 
-Progress: █░░░░░░░░░ 10%
+Progress: ██████░░░░ 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 5 min
-- Total execution time: 0.42 hours
+- Total plans completed: 6
+- Average duration: 6 min
+- Total execution time: 0.63 hours
 
 **By Phase:**
 
@@ -32,6 +32,7 @@ Progress: █░░░░░░░░░ 10%
 | 3. Reusable Blocks | 1 | 3 min | 3 min |
 | 4. Integration | 1 | 5 min | 5 min |
 | 5. Block Library Expansion | 1 | 4 min | 4 min |
+| 6. Block Settings + Stable IDs | 1 | 13 min | 13 min |
 
 ## Accumulated Context
 
@@ -43,6 +44,7 @@ Recent decisions affecting current work:
 - Section-based pages: Good — clear separation of hero/content/footer
 - Hybrid blocks: Good — ReusableBlocks collection works well
 - Dev app first: Good — pattern validated, ready for extraction
+- nanoid(12) for blockIds: Compact, URL-safe, collision-resistant stable IDs
 
 ### Deferred Issues
 
@@ -59,5 +61,5 @@ None.
 ## Session Continuity
 
 Last session: 2025-12-30
-Stopped at: Completed Phase 5 (Block Library Expansion)
+Stopped at: Completed 06-01-PLAN.md (Block Settings for Pages)
 Resume file: None

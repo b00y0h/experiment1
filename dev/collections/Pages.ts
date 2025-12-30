@@ -1,6 +1,48 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { nanoid } from 'nanoid'
+
+import { createBlockSettings } from '../fields/blockSettings'
+
+type BlockWithSettings = {
+  [key: string]: unknown
+  blockType: string
+  settings?: {
+    analyticsLabel?: string
+    blockId?: string
+  }
+}
+
+/**
+ * Collection-level fallback hook that ensures all blocks have a blockId.
+ * Handles edge cases where field-level hooks may not fire (e.g., Lexical-embedded blocks).
+ */
+const ensureBlockIds: CollectionBeforeChangeHook = ({ data, operation }) => {
+  if (operation !== 'create' && operation !== 'update') {
+    return data
+  }
+
+  const processBlocks = (blocks: BlockWithSettings[] | undefined): void => {
+    if (!Array.isArray(blocks)) {return}
+
+    for (const block of blocks) {
+      if (!block.settings) {
+        block.settings = {}
+      }
+      if (!block.settings.blockId) {
+        block.settings.blockId = nanoid(12)
+      }
+    }
+  }
+
+  // Process all block arrays
+  processBlocks(data.hero as BlockWithSettings[] | undefined)
+  processBlocks(data.content as BlockWithSettings[] | undefined)
+  processBlocks(data.footer as BlockWithSettings[] | undefined)
+
+  return data
+}
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -16,16 +58,15 @@ export const Pages: CollectionConfig = {
     {
       name: 'slug',
       type: 'text',
-      required: true,
-      unique: true,
       admin: {
         position: 'sidebar',
       },
+      required: true,
+      unique: true,
     },
     {
       name: 'hero',
       type: 'blocks',
-      maxRows: 1,
       blocks: [
         {
           slug: 'heroBlock',
@@ -42,7 +83,6 @@ export const Pages: CollectionConfig = {
             {
               name: 'cta',
               type: 'group',
-              label: 'Call to Action',
               admin: {
                 condition: () => true,
               },
@@ -58,15 +98,18 @@ export const Pages: CollectionConfig = {
                   label: 'Button URL',
                 },
               ],
+              label: 'Call to Action',
             },
             {
               name: 'media',
               type: 'upload',
               relationTo: 'media',
             },
+            createBlockSettings(),
           ],
         },
       ],
+      maxRows: 1,
     },
     {
       name: 'content',
@@ -80,6 +123,7 @@ export const Pages: CollectionConfig = {
               type: 'richText',
               editor: lexicalEditor(),
             },
+            createBlockSettings(),
           ],
         },
         {
@@ -101,6 +145,7 @@ export const Pages: CollectionConfig = {
                 },
               ],
             },
+            createBlockSettings(),
           ],
         },
         {
@@ -112,6 +157,7 @@ export const Pages: CollectionConfig = {
               relationTo: 'reusable-blocks',
               required: true,
             },
+            createBlockSettings(),
           ],
         },
         {
@@ -133,6 +179,7 @@ export const Pages: CollectionConfig = {
                 },
               ],
             },
+            createBlockSettings(),
           ],
         },
         {
@@ -158,6 +205,7 @@ export const Pages: CollectionConfig = {
                 },
               ],
             },
+            createBlockSettings(),
           ],
         },
       ],
@@ -173,9 +221,13 @@ export const Pages: CollectionConfig = {
               name: 'text',
               type: 'text',
             },
+            createBlockSettings(),
           ],
         },
       ],
     },
   ],
+  hooks: {
+    beforeChange: [ensureBlockIds],
+  },
 }
