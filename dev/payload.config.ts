@@ -11,6 +11,7 @@ import { Pages } from './collections/Pages.js'
 import { PageVariants } from './collections/PageVariants.js'
 import { ReusableBlocks } from './collections/ReusableBlocks.js'
 import { resolvedPageHandler } from './endpoints/resolvedPage.js'
+import { resolvedPageWithVariantHandler } from './endpoints/resolvedPageWithVariant.js'
 import { testEmailAdapter } from './helpers/testEmailAdapter.js'
 import { seed } from './seed.js'
 
@@ -66,6 +67,11 @@ const buildConfigWithMemoryDB = async () => {
         handler: resolvedPageHandler,
         method: 'get',
         path: '/pages/:slug/resolved',
+      },
+      {
+        handler: resolvedPageWithVariantHandler,
+        method: 'get',
+        path: '/pages/:slug/variants/:variantId/preview',
       },
     ],
     onInit: async (payload) => {

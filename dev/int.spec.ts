@@ -6,7 +6,9 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
 import { resolvedPageHandler } from './endpoints/resolvedPage.js'
+import { resolvedPageWithVariantHandler } from './endpoints/resolvedPageWithVariant.js'
 import { getResolvedPage } from './utils/getResolvedPage.js'
+import { getResolvedPageWithVariant } from './utils/getResolvedPageWithVariant.js'
 import { resolvePageBlocks } from './utils/resolvePageBlocks'
 
 let payload: Payload
@@ -1690,5 +1692,326 @@ describe('PageVariants collection', () => {
         },
       }),
     ).rejects.toThrow()
+  })
+})
+
+describe('Page variant preview', () => {
+  test('resolves page with hero override applied', async () => {
+    // Create a base page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'preview-hero-test',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Original CTA',
+            },
+            headline: 'Original Hero Headline',
+            subheadline: 'Original subheadline',
+          },
+        ],
+        title: 'Preview Hero Test Page',
+      },
+    })
+
+    // Create variant with heroOverride
+    const variant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Hero Override Preview Variant',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com/sale',
+              ctaText: 'Shop Sale',
+            },
+            headline: 'Holiday Sale Hero',
+            subheadline: 'Limited time offer!',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    // Call getResolvedPageWithVariant
+    const result = await getResolvedPageWithVariant(payload, 'preview-hero-test', variant.id)
+
+    // Verify hero section is replaced
+    expect(result).not.toBeNull()
+    expect(result?.hero).toHaveLength(1)
+    expect(result?.hero?.[0]?.headline).toBe('Holiday Sale Hero')
+    expect(result?.hero?.[0]?.subheadline).toBe('Limited time offer!')
+    expect(result?.hero?.[0]?.cta?.ctaText).toBe('Shop Sale')
+  })
+
+  test('resolves page with content override applied', async () => {
+    // Create a base page with content
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'preview-content-test',
+        content: [
+          {
+            blockType: 'accordionBlock',
+            items: [
+              { title: 'Original FAQ Item 1' },
+              { title: 'Original FAQ Item 2' },
+            ],
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Content Override Test Hero',
+          },
+        ],
+        title: 'Preview Content Test Page',
+      },
+    })
+
+    // Create variant with contentOverride
+    const variant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Content Override Preview Variant',
+        contentOverride: [
+          {
+            blockType: 'faqBlock',
+            items: [
+              { question: 'Holiday FAQ Question 1' },
+              { question: 'Holiday FAQ Question 2' },
+              { question: 'Holiday FAQ Question 3' },
+            ],
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    // Call getResolvedPageWithVariant
+    const result = await getResolvedPageWithVariant(payload, 'preview-content-test', variant.id)
+
+    // Verify content section is replaced (not merged)
+    expect(result).not.toBeNull()
+    expect(result?.content).toHaveLength(1)
+    expect(result?.content?.[0]?.blockType).toBe('faqBlock')
+    if (result?.content?.[0]?.blockType === 'faqBlock') {
+      expect(result.content[0].items).toHaveLength(3)
+      expect(result.content[0].items?.[0]?.question).toBe('Holiday FAQ Question 1')
+    }
+  })
+
+  test('preserves original sections when override is empty', async () => {
+    // Create a base page with content
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'preview-empty-override-test',
+        content: [
+          {
+            blockType: 'statsBlock',
+            items: [
+              { label: 'Happy Customers', value: '1000+' },
+            ],
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Empty Override Test Hero',
+          },
+        ],
+        title: 'Preview Empty Override Test Page',
+      },
+    })
+
+    // Create variant with empty contentOverride (no override)
+    const variant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Empty Override Preview Variant',
+        contentOverride: [], // Empty array means no override
+        page: basePage.id,
+      },
+    })
+
+    // Call getResolvedPageWithVariant
+    const result = await getResolvedPageWithVariant(payload, 'preview-empty-override-test', variant.id)
+
+    // Verify original content is preserved
+    expect(result).not.toBeNull()
+    expect(result?.content).toHaveLength(1)
+    expect(result?.content?.[0]?.blockType).toBe('statsBlock')
+    if (result?.content?.[0]?.blockType === 'statsBlock') {
+      expect(result.content[0].items?.[0]?.value).toBe('1000+')
+    }
+  })
+
+  test('includes _variant metadata in response', async () => {
+    // Create a base page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'preview-metadata-test',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Metadata Test Hero',
+          },
+        ],
+        title: 'Preview Metadata Test Page',
+      },
+    })
+
+    // Create variant
+    const variant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Metadata Test Variant',
+        page: basePage.id,
+      },
+    })
+
+    // Call getResolvedPageWithVariant
+    const result = await getResolvedPageWithVariant(payload, 'preview-metadata-test', variant.id)
+
+    // Verify _variant metadata
+    expect(result).not.toBeNull()
+    expect(result?._variant).toBeDefined()
+    expect(result?._variant?.id).toBe(variant.id)
+    expect(result?._variant?.name).toBe('Metadata Test Variant')
+  })
+
+  test('REST endpoint returns 404 for unknown page', async () => {
+    const request = new Request('http://localhost:3000/api/pages/nonexistent-page-slug/variants/xxx/preview', {
+      method: 'GET',
+    })
+
+    const payloadRequest = await createPayloadRequest({ config, request })
+    payloadRequest.routeParams = { slug: 'nonexistent-page-slug', variantId: 'xxx' }
+
+    const response = await resolvedPageWithVariantHandler(payloadRequest)
+
+    expect(response.status).toBe(404)
+
+    const data = await response.json()
+    expect(data.error).toBe('Page not found')
+  })
+
+  test('REST endpoint returns 404 for unknown variant', async () => {
+    // Create a valid page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'preview-unknown-variant-test',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Unknown Variant Test Hero',
+          },
+        ],
+        title: 'Preview Unknown Variant Test Page',
+      },
+    })
+
+    const request = new Request(
+      `http://localhost:3000/api/pages/${basePage.slug}/variants/nonexistent-variant-id/preview`,
+      { method: 'GET' },
+    )
+
+    const payloadRequest = await createPayloadRequest({ config, request })
+    payloadRequest.routeParams = { slug: basePage.slug, variantId: 'nonexistent-variant-id' }
+
+    const response = await resolvedPageWithVariantHandler(payloadRequest)
+
+    expect(response.status).toBe(404)
+
+    const data = await response.json()
+    expect(data.error).toBe('Variant not found')
+  })
+
+  test('REST endpoint returns 400 when variant belongs to different page', async () => {
+    // Create page A
+    const pageA = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'preview-page-a-mismatch',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA A',
+            },
+            headline: 'Page A Hero',
+          },
+        ],
+        title: 'Preview Page A for Mismatch Test',
+      },
+    })
+
+    // Create page B
+    const pageB = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'preview-page-b-mismatch',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA B',
+            },
+            headline: 'Page B Hero',
+          },
+        ],
+        title: 'Preview Page B for Mismatch Test',
+      },
+    })
+
+    // Create variant for page A
+    const variantForPageA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Variant for Page A',
+        page: pageA.id,
+      },
+    })
+
+    // Try to preview variant (for page A) on page B
+    const request = new Request(
+      `http://localhost:3000/api/pages/${pageB.slug}/variants/${variantForPageA.id}/preview`,
+      { method: 'GET' },
+    )
+
+    const payloadRequest = await createPayloadRequest({ config, request })
+    payloadRequest.routeParams = { slug: pageB.slug, variantId: variantForPageA.id }
+
+    const response = await resolvedPageWithVariantHandler(payloadRequest)
+
+    expect(response.status).toBe(400)
+
+    const data = await response.json()
+    expect(data.error).toBe('Variant does not belong to this page')
   })
 })
