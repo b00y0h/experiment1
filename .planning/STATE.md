@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2025-12-30)
 
 **Core value:** Clean, typed content schema that balances editor flexibility with content consistency and developer ergonomics.
-**Current focus:** Planning next milestone
+**Current focus:** v3.0 Live Experiments + Lead Tracking
 
 ## Current Position
 
-Phase: 9 of 9 complete
-Plan: All plans complete
-Status: v2.0 milestone shipped
-Last activity: 2025-12-30 — v2.0 Page Assembly + Variant Ready complete
+Phase: 10 of 14 (Experiment Collection)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2025-12-30 — Milestone v3.0 created
 
-Progress: ██████████ 100% (9/9 phases, 13/13 plans)
+Progress: ░░░░░░░░░░ 0%
 
 ## Performance Metrics
 
@@ -51,8 +51,6 @@ Key decisions from v2.0:
 ### Deferred Issues
 
 - Plugin extraction (future milestone)
-- Variant activation logic (future milestone)
-- A/B testing infrastructure (future milestone)
 
 ### Blockers/Concerns
 
@@ -62,9 +60,10 @@ None.
 
 - v1.0 MVP: Shipped 2025-12-30 (Phases 1-4)
 - v2.0 Page Assembly + Variant Ready: Shipped 2025-12-30 (Phases 5-9)
+- v3.0 Live Experiments + Lead Tracking: Created 2025-12-30 (Phases 10-14)
 
 ## Session Continuity
 
 Last session: 2025-12-30
-Stopped at: v2.0 milestone complete
-Resume file: None — run /gsd:new-milestone or /gsd:discuss-milestone for next work
+Stopped at: Milestone v3.0 initialization
+Resume file: None — run /gsd:plan-phase 10 to start first phase
