@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     pages: Page;
+    'page-variants': PageVariant;
     'reusable-blocks': ReusableBlock;
     posts: Post;
     media: Media;
@@ -80,6 +81,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
+    'page-variants': PageVariantsSelect<false> | PageVariantsSelect<true>;
     'reusable-blocks': ReusableBlocksSelect<false> | ReusableBlocksSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -531,6 +533,244 @@ export interface ReusableBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-variants".
+ */
+export interface PageVariant {
+  id: string;
+  /**
+   * Variant identifier (e.g., "Holiday Sale", "Mobile Optimized")
+   */
+  name: string;
+  /**
+   * The base page this variant applies to
+   */
+  page: string | Page;
+  /**
+   * Lifecycle state of this variant
+   */
+  status?: ('draft' | 'active' | 'archived') | null;
+  /**
+   * Replaces hero section when set
+   */
+  heroOverride?:
+    | {
+        headline: string;
+        subheadline?: string | null;
+        cta?: {
+          ctaText?: string | null;
+          ctaLink?: string | null;
+        };
+        media?: (string | null) | Media;
+        /**
+         * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+         */
+        settings?: {
+          /**
+           * Auto-generated stable identifier. Do not modify unless necessary.
+           */
+          blockId?: string | null;
+          /**
+           * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+           */
+          analyticsLabel?: string | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'heroBlock';
+      }[]
+    | null;
+  /**
+   * Replaces content section when set
+   */
+  contentOverride?:
+    | (
+        | {
+            body?: {
+              root: {
+                type: string;
+                children: {
+                  type: string;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contentBlock';
+          }
+        | {
+            items?:
+              | {
+                  title: string;
+                  content?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: string;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'accordionBlock';
+          }
+        | {
+            block: string | ReusableBlock;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'reusableBlockRef';
+          }
+        | {
+            items?:
+              | {
+                  question: string;
+                  answer?: {
+                    root: {
+                      type: string;
+                      children: {
+                        type: string;
+                        version: number;
+                        [k: string]: unknown;
+                      }[];
+                      direction: ('ltr' | 'rtl') | null;
+                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                      indent: number;
+                      version: number;
+                    };
+                    [k: string]: unknown;
+                  } | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faqBlock';
+          }
+        | {
+            items?:
+              | {
+                  value: string;
+                  label: string;
+                  icon?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+             */
+            settings?: {
+              /**
+               * Auto-generated stable identifier. Do not modify unless necessary.
+               */
+              blockId?: string | null;
+              /**
+               * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+               */
+              analyticsLabel?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statsBlock';
+          }
+      )[]
+    | null;
+  /**
+   * Replaces footer section when set
+   */
+  footerOverride?:
+    | {
+        text?: string | null;
+        /**
+         * Settings for analytics and variant targeting. Block ID is auto-generated on creation.
+         */
+        settings?: {
+          /**
+           * Auto-generated stable identifier. Do not modify unless necessary.
+           */
+          blockId?: string | null;
+          /**
+           * Human-readable label for analytics dashboards (e.g., "Homepage Hero", "Pricing FAQ").
+           */
+          analyticsLabel?: string | null;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'footerBlock';
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
@@ -575,6 +815,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: string | Page;
+      } | null)
+    | ({
+        relationTo: 'page-variants';
+        value: string | PageVariant;
       } | null)
     | ({
         relationTo: 'reusable-blocks';
@@ -759,6 +1003,147 @@ export interface PagesSelect<T extends boolean = true> {
             };
       };
   footer?:
+    | T
+    | {
+        footerBlock?:
+          | T
+          | {
+              text?: T;
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-variants_select".
+ */
+export interface PageVariantsSelect<T extends boolean = true> {
+  name?: T;
+  page?: T;
+  status?: T;
+  heroOverride?:
+    | T
+    | {
+        heroBlock?:
+          | T
+          | {
+              headline?: T;
+              subheadline?: T;
+              cta?:
+                | T
+                | {
+                    ctaText?: T;
+                    ctaLink?: T;
+                  };
+              media?: T;
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  contentOverride?:
+    | T
+    | {
+        contentBlock?:
+          | T
+          | {
+              body?: T;
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        accordionBlock?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    title?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        reusableBlockRef?:
+          | T
+          | {
+              block?: T;
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faqBlock?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        statsBlock?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    value?: T;
+                    label?: T;
+                    icon?: T;
+                    id?: T;
+                  };
+              settings?:
+                | T
+                | {
+                    blockId?: T;
+                    analyticsLabel?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  footerOverride?:
     | T
     | {
         footerBlock?:

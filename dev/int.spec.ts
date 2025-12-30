@@ -1481,3 +1481,214 @@ describe('Resolved page API', () => {
     expect(data.error).toBe('Missing slug parameter')
   })
 })
+
+describe('PageVariants collection', () => {
+  test('creates variant with name and page reference', async () => {
+    // Create a base page first
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'variant-base-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Base Page for Variants',
+          },
+        ],
+        title: 'Base Page for Variants',
+      },
+    })
+
+    // Create a variant referencing the base page
+    const variant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Holiday Sale Variant',
+        page: basePage.id,
+        status: 'draft',
+      },
+    })
+
+    expect(variant.name).toBe('Holiday Sale Variant')
+    // page relationship may be populated object or ID depending on depth
+    const pageRef = typeof variant.page === 'object' ? variant.page.id : variant.page
+    expect(pageRef).toBe(basePage.id)
+    expect(variant.status).toBe('draft')
+  })
+
+  test('stores hero override blocks with blockIds', async () => {
+    // Create a base page first
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'variant-hero-override-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Original CTA',
+            },
+            headline: 'Original Hero',
+          },
+        ],
+        title: 'Page for Hero Override Test',
+      },
+    })
+
+    // Create variant with heroOverride
+    const variant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Hero Override Variant',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com/sale',
+              ctaText: 'Shop Now',
+            },
+            headline: 'Holiday Sale Hero',
+            subheadline: 'Limited time offer!',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    expect(variant.heroOverride).toHaveLength(1)
+    expect(variant.heroOverride?.[0]?.blockType).toBe('heroBlock')
+    expect(variant.heroOverride?.[0]?.headline).toBe('Holiday Sale Hero')
+    // Verify blockId is auto-generated
+    expect(variant.heroOverride?.[0]?.settings?.blockId).toBeDefined()
+    expect(variant.heroOverride?.[0]?.settings?.blockId).toHaveLength(12)
+  })
+
+  test('stores content override blocks', async () => {
+    // Create a base page first
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'variant-content-override-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Content Override Test Page',
+          },
+        ],
+        title: 'Page for Content Override Test',
+      },
+    })
+
+    // Create variant with contentOverride containing multiple block types
+    const variant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Content Override Variant',
+        contentOverride: [
+          {
+            blockType: 'contentBlock',
+            body: {
+              root: {
+                type: 'root',
+                children: [
+                  {
+                    type: 'paragraph',
+                    children: [{ type: 'text', text: 'Holiday content', version: 1 }],
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                version: 1,
+              },
+            },
+          },
+          {
+            blockType: 'accordionBlock',
+            items: [
+              { title: 'FAQ 1' },
+              { title: 'FAQ 2' },
+            ],
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    expect(variant.contentOverride).toHaveLength(2)
+    expect(variant.contentOverride?.[0]?.blockType).toBe('contentBlock')
+    expect(variant.contentOverride?.[1]?.blockType).toBe('accordionBlock')
+
+    // Verify blockIds are auto-generated for both blocks
+    expect(variant.contentOverride?.[0]?.settings?.blockId).toBeDefined()
+    expect(variant.contentOverride?.[0]?.settings?.blockId).toHaveLength(12)
+    expect(variant.contentOverride?.[1]?.settings?.blockId).toBeDefined()
+    expect(variant.contentOverride?.[1]?.settings?.blockId).toHaveLength(12)
+  })
+
+  test('stores footer override blocks', async () => {
+    // Create a base page first
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'variant-footer-override-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Footer Override Test Page',
+          },
+        ],
+        title: 'Page for Footer Override Test',
+      },
+    })
+
+    // Create variant with footerOverride
+    const variant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Footer Override Variant',
+        footerOverride: [
+          {
+            blockType: 'footerBlock',
+            text: 'Holiday Sale Footer - Free Shipping on Orders Over $50',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    expect(variant.footerOverride).toHaveLength(1)
+    expect(variant.footerOverride?.[0]?.blockType).toBe('footerBlock')
+    expect(variant.footerOverride?.[0]?.text).toBe('Holiday Sale Footer - Free Shipping on Orders Over $50')
+    // Verify blockId is auto-generated
+    expect(variant.footerOverride?.[0]?.settings?.blockId).toBeDefined()
+    expect(variant.footerOverride?.[0]?.settings?.blockId).toHaveLength(12)
+  })
+
+  test('enforces required page relationship', async () => {
+    // Attempt to create variant without page field
+    await expect(
+      payload.create({
+        collection: 'page-variants',
+        data: {
+          name: 'Orphan Variant',
+          // page intentionally missing
+        },
+      }),
+    ).rejects.toThrow()
+  })
+})
