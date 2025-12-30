@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2025-12-30)
 
 **Core value:** Clean, typed content schema that balances editor flexibility with content consistency and developer ergonomics.
-**Current focus:** v2.0 Page Assembly + Variant Ready
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 9 of 9 (Page Variants Shell)
-Plan: 2 of 2 in current phase
-Status: Phase complete — Milestone v2.0 complete
-Last activity: 2025-12-30 — Completed 09-02-PLAN.md
+Phase: 9 of 9 complete
+Plan: All plans complete
+Status: v2.0 milestone shipped
+Last activity: 2025-12-30 — v2.0 Page Assembly + Variant Ready complete
 
-Progress: ██████████ 100%
+Progress: ██████████ 100% (9/9 phases, 13/13 plans)
 
 ## Performance Metrics
 
@@ -42,16 +42,17 @@ Progress: ██████████ 100%
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
+Key decisions from v2.0:
 
-- Section-based pages: Good — clear separation of hero/content/footer
-- Hybrid blocks: Good — ReusableBlocks collection works well
-- Dev app first: Good — pattern validated, ready for extraction
-- nanoid(12) for blockIds: Compact, URL-safe, collision-resistant stable IDs
+- nanoid(12) for blockIds: Good — compact, URL-safe, collision-resistant
+- Section replacement for variants: Good — clear override semantics
+- Restricted Lexical editor: Good — simpler content model
 
 ### Deferred Issues
 
-- Plugin extraction (future) — after v2.0 patterns stabilize
+- Plugin extraction (future milestone)
+- Variant activation logic (future milestone)
+- A/B testing infrastructure (future milestone)
 
 ### Blockers/Concerns
 
@@ -59,10 +60,11 @@ None.
 
 ## Roadmap Evolution
 
-- Milestone v2.0 created: Page assembly + variant ready, 5 phases (Phase 5-9)
+- v1.0 MVP: Shipped 2025-12-30 (Phases 1-4)
+- v2.0 Page Assembly + Variant Ready: Shipped 2025-12-30 (Phases 5-9)
 
 ## Session Continuity
 
 Last session: 2025-12-30
-Stopped at: Milestone v2.0 complete
-Resume file: None — milestone complete, run /gsd:complete-milestone
+Stopped at: v2.0 milestone complete
+Resume file: None — run /gsd:new-milestone or /gsd:discuss-milestone for next work

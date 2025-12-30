@@ -1,5 +1,32 @@
 # Project Milestones: Landing Page Content Model
 
+## v2.0 Page Assembly + Variant Ready (Shipped: 2025-12-30)
+
+**Delivered:** Page assembly with rendering contract, validation guardrails, stable blockIds, and variant preview system for A/B testing.
+
+**Phases completed:** 5-9 (9 plans total)
+
+**Key accomplishments:**
+
+- Added FAQ and Stats blocks for comprehensive landing page content
+- Implemented stable blockIds with nanoid(12) for analytics/variant targeting
+- Created field and page-level validation with conversion element requirement
+- Built rendering contract with resolvePageBlocks and REST/Local API endpoints
+- Introduced PageVariants collection with section override preview system
+
+**Stats:**
+
+- 37 files created/modified
+- 5,062 lines of TypeScript
+- 5 phases, 9 plans, 18 tasks
+- 1 day from v1.0 to v2.0
+
+**Git range:** `feat(05-01)` → `feat(09-02)`
+
+**What's next:** Plugin extraction from dev app, variant activation logic, or A/B testing infrastructure
+
+---
+
 ## v1.0 MVP (Shipped: 2025-12-30)
 
 **Delivered:** Composable landing page content model with three-section structure and reusable block library.
@@ -24,6 +51,6 @@
 
 **Git range:** `feat(01-01)` → `feat(04-01)`
 
-**What's next:** TBD - content model complete, ready for frontend consumption or plugin extraction
+**What's next:** v2.0 Page Assembly + Variant Ready
 
 ---
