@@ -5,6 +5,7 @@ import { createPayloadRequest, getPayload } from 'payload'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
+import { resolvePageBlocks } from './utils/resolvePageBlocks'
 
 let payload: Payload
 
@@ -915,5 +916,396 @@ describe('Page-level conversion element validation', () => {
     expect(page.slug).toBe('test-valid-conversion')
     expect(page.hero?.[0]?.cta?.ctaText).toBe('Sign Up Now')
     expect(page.hero?.[0]?.cta?.ctaLink).toBe('https://example.com/signup')
+  })
+})
+
+describe('Page block resolution', () => {
+  test('resolves reusableBlockRef to inline content block', async () => {
+    // Create ReusableBlock with contentBlock
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'contentBlock',
+            body: {
+              root: {
+                type: 'root',
+                children: [
+                  {
+                    type: 'paragraph',
+                    children: [{ type: 'text', text: 'Reusable content for resolution test', version: 1 }],
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                version: 1,
+              },
+            },
+          },
+        ],
+        blockType: 'content',
+        title: 'Content Block for Resolution Test',
+      },
+    })
+
+    // Create Page with reusableBlockRef pointing to it
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-resolve-content-block',
+        content: [
+          {
+            block: reusableBlock.id,
+            blockType: 'reusableBlockRef',
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Resolution Test Hero',
+          },
+        ],
+        title: 'Page for Content Block Resolution',
+      },
+    })
+
+    // Fetch page with depth: 2 (to populate nested block)
+    const { docs } = await payload.find({
+      collection: 'pages',
+      depth: 2,
+      where: {
+        id: { equals: page.id },
+      },
+    })
+
+    const fetchedPage = docs[0]
+
+    // Call resolvePageBlocks
+    const resolvedPage = resolvePageBlocks(fetchedPage)
+
+    // Verify content[0].blockType is 'contentBlock' (not 'reusableBlockRef')
+    expect(resolvedPage.content).toHaveLength(1)
+    expect(resolvedPage.content?.[0]?.blockType).toBe('contentBlock')
+
+    // Verify content[0]._resolvedFrom equals ReusableBlock id
+    expect(resolvedPage.content?.[0]?._resolvedFrom).toBe(reusableBlock.id)
+  })
+
+  test('resolves reusableBlockRef to inline accordion block', async () => {
+    // Create ReusableBlock with accordionBlock containing items
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'accordionBlock',
+            items: [
+              { title: 'Accordion Item 1' },
+              { title: 'Accordion Item 2' },
+              { title: 'Accordion Item 3' },
+            ],
+          },
+        ],
+        blockType: 'accordion',
+        title: 'Accordion Block for Resolution Test',
+      },
+    })
+
+    // Create Page referencing it
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-resolve-accordion-block',
+        content: [
+          {
+            block: reusableBlock.id,
+            blockType: 'reusableBlockRef',
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Accordion Resolution Test Hero',
+          },
+        ],
+        title: 'Page for Accordion Block Resolution',
+      },
+    })
+
+    // Fetch with depth 2
+    const { docs } = await payload.find({
+      collection: 'pages',
+      depth: 2,
+      where: {
+        id: { equals: page.id },
+      },
+    })
+
+    const resolvedPage = resolvePageBlocks(docs[0])
+
+    // Verify accordionBlock with items preserved
+    expect(resolvedPage.content).toHaveLength(1)
+    expect(resolvedPage.content?.[0]?.blockType).toBe('accordionBlock')
+
+    if (resolvedPage.content?.[0]?.blockType === 'accordionBlock') {
+      expect(resolvedPage.content[0].items).toHaveLength(3)
+      expect(resolvedPage.content[0].items?.[0]?.title).toBe('Accordion Item 1')
+      expect(resolvedPage.content[0].items?.[1]?.title).toBe('Accordion Item 2')
+      expect(resolvedPage.content[0].items?.[2]?.title).toBe('Accordion Item 3')
+    }
+
+    expect(resolvedPage.content?.[0]?._resolvedFrom).toBe(reusableBlock.id)
+  })
+
+  test('preserves inline blocks alongside resolved blocks', async () => {
+    // Create a reusable block
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'contentBlock',
+            body: {
+              root: {
+                type: 'root',
+                children: [
+                  {
+                    type: 'paragraph',
+                    children: [{ type: 'text', text: 'Reusable content', version: 1 }],
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                version: 1,
+              },
+            },
+          },
+        ],
+        blockType: 'content',
+        title: 'Reusable for Mixed Test',
+      },
+    })
+
+    // Create Page with mix of inline contentBlock AND reusableBlockRef
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-mixed-blocks',
+        content: [
+          {
+            blockType: 'accordionBlock',
+            items: [{ title: 'Inline Accordion Item' }],
+          },
+          {
+            block: reusableBlock.id,
+            blockType: 'reusableBlockRef',
+          },
+          {
+            blockType: 'faqBlock',
+            items: [{ question: 'Inline FAQ Question' }],
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Mixed Blocks Test Hero',
+          },
+        ],
+        title: 'Page with Mixed Blocks',
+      },
+    })
+
+    // Fetch with depth 2
+    const { docs } = await payload.find({
+      collection: 'pages',
+      depth: 2,
+      where: {
+        id: { equals: page.id },
+      },
+    })
+
+    const resolvedPage = resolvePageBlocks(docs[0])
+
+    // Verify both blocks present with correct types
+    expect(resolvedPage.content).toHaveLength(3)
+
+    // First block: inline accordion (unchanged)
+    expect(resolvedPage.content?.[0]?.blockType).toBe('accordionBlock')
+    expect(resolvedPage.content?.[0]?._resolvedFrom).toBeUndefined()
+
+    // Second block: resolved from reusableBlockRef to contentBlock
+    expect(resolvedPage.content?.[1]?.blockType).toBe('contentBlock')
+    expect(resolvedPage.content?.[1]?._resolvedFrom).toBe(reusableBlock.id)
+
+    // Third block: inline FAQ (unchanged)
+    expect(resolvedPage.content?.[2]?.blockType).toBe('faqBlock')
+    expect(resolvedPage.content?.[2]?._resolvedFrom).toBeUndefined()
+  })
+
+  test('preserves blockId from reusableBlockRef settings', async () => {
+    // Create a reusable block
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'contentBlock',
+            body: {
+              root: {
+                type: 'root',
+                children: [
+                  {
+                    type: 'paragraph',
+                    children: [{ type: 'text', text: 'Content for blockId test', version: 1 }],
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                version: 1,
+              },
+            },
+          },
+        ],
+        blockType: 'content',
+        title: 'Reusable for BlockId Test',
+      },
+    })
+
+    // Create Page with reusableBlockRef that has a specific blockId
+    const customBlockId = 'custom-ref-id1'
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-blockid-preservation',
+        content: [
+          {
+            block: reusableBlock.id,
+            blockType: 'reusableBlockRef',
+            settings: {
+              blockId: customBlockId,
+            },
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'BlockId Preservation Test Hero',
+          },
+        ],
+        title: 'Page for BlockId Preservation',
+      },
+    })
+
+    // Fetch with depth 2
+    const { docs } = await payload.find({
+      collection: 'pages',
+      depth: 2,
+      where: {
+        id: { equals: page.id },
+      },
+    })
+
+    const resolvedPage = resolvePageBlocks(docs[0])
+
+    // Verify the resolved block has the original reusableBlockRef's settings.blockId
+    expect(resolvedPage.content).toHaveLength(1)
+    expect(resolvedPage.content?.[0]?.blockType).toBe('contentBlock')
+    expect(resolvedPage.content?.[0]?.settings?.blockId).toBe(customBlockId)
+  })
+
+  test('handles unpopulated reusableBlockRef gracefully', async () => {
+    // Create a reusable block
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'contentBlock',
+            body: {
+              root: {
+                type: 'root',
+                children: [
+                  {
+                    type: 'paragraph',
+                    children: [{ type: 'text', text: 'Content for unpopulated test', version: 1 }],
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                version: 1,
+              },
+            },
+          },
+        ],
+        blockType: 'content',
+        title: 'Reusable for Unpopulated Test',
+      },
+    })
+
+    // Create Page with reusableBlockRef
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-unpopulated-ref',
+        content: [
+          {
+            block: reusableBlock.id,
+            blockType: 'reusableBlockRef',
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Unpopulated Ref Test Hero',
+          },
+        ],
+        title: 'Page for Unpopulated Ref Test',
+      },
+    })
+
+    // Fetch with depth: 0 (relationship not populated)
+    const { docs } = await payload.find({
+      collection: 'pages',
+      depth: 0,
+      where: {
+        id: { equals: page.id },
+      },
+    })
+
+    // Call resolvePageBlocks - should not crash, keep as reusableBlockRef
+    const resolvedPage = resolvePageBlocks(docs[0])
+
+    // Should have kept the reusableBlockRef since it couldn't be resolved
+    expect(resolvedPage.content).toHaveLength(1)
+    expect(resolvedPage.content?.[0]?.blockType).toBe('reusableBlockRef')
   })
 })
