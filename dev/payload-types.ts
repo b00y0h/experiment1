@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     experiments: Experiment;
+    leads: Lead;
     pages: Page;
     'page-variants': PageVariant;
     'reusable-blocks': ReusableBlock;
@@ -82,6 +83,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     experiments: ExperimentsSelect<false> | ExperimentsSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'page-variants': PageVariantsSelect<false> | PageVariantsSelect<true>;
     'reusable-blocks': ReusableBlocksSelect<false> | ReusableBlocksSelect<true>;
@@ -816,6 +818,53 @@ export interface PageVariant {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: string;
+  email: string;
+  name?: string | null;
+  /**
+   * Which experiment this lead was captured from
+   */
+  experiment?: (string | null) | Experiment;
+  /**
+   * Which variant the visitor saw
+   */
+  variant?: (string | null) | PageVariant;
+  /**
+   * The visitor ID from cookie at time of submission
+   */
+  visitorId?: string | null;
+  /**
+   * Which page the form was on
+   */
+  page?: (string | null) | Page;
+  /**
+   * Arbitrary additional form fields as JSON object
+   */
+  formData?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Where the lead came from (e.g., "hero-cta", "footer-form")
+   */
+  source?: string | null;
+  /**
+   * When this lead converted
+   */
+  convertedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
@@ -860,6 +909,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'experiments';
         value: string | Experiment;
+      } | null)
+    | ({
+        relationTo: 'leads';
+        value: string | Lead;
       } | null)
     | ({
         relationTo: 'pages';
@@ -948,6 +1001,23 @@ export interface ExperimentsSelect<T extends boolean = true> {
   status?: T;
   startDate?: T;
   endDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  email?: T;
+  name?: T;
+  experiment?: T;
+  variant?: T;
+  visitorId?: T;
+  page?: T;
+  formData?: T;
+  source?: T;
+  convertedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

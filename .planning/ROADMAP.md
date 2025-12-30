@@ -70,7 +70,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 12-01: TBD
+- [x] 12-01: Leads collection with attribution + tests
 
 ### Phase 13: Analytics Events
 
@@ -112,6 +112,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 9. Page Variants Shell | v2.0 | 2/2 | Complete | 2025-12-30 |
 | 10. Experiment Collection | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 11. Visitor Assignment | v3.0 | 1/1 | Complete | 2025-12-30 |
-| 12. Lead Capture | v3.0 | 0/? | Not started | - |
+| 12. Lead Capture | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 13. Analytics Events | v3.0 | 0/? | Not started | - |
 | 14. Experiment Dashboard | v3.0 | 0/? | Not started | - |

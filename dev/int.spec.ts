@@ -2436,6 +2436,153 @@ describe('Variant assignment', () => {
   })
 })
 
+describe('Leads collection', () => {
+  let leadsTestPage: Awaited<ReturnType<typeof payload.create<'pages'>>>
+  let leadsTestVariant: Awaited<ReturnType<typeof payload.create<'page-variants'>>>
+  let leadsTestExperiment: Awaited<ReturnType<typeof payload.create<'experiments'>>>
+
+  beforeAll(async () => {
+    // Create test fixtures for Leads tests
+    leadsTestPage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'leads-test-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Leads Test Page',
+          },
+        ],
+        title: 'Leads Test Page',
+      },
+    })
+
+    leadsTestVariant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Leads Test Variant',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/leads-test', ctaText: 'Leads CTA' },
+            headline: 'Leads Test Variant Hero',
+          },
+        ],
+        page: leadsTestPage.id,
+      },
+    })
+
+    // Need a second variant to create an experiment
+    const secondVariant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Leads Test Variant B',
+        page: leadsTestPage.id,
+      },
+    })
+
+    leadsTestExperiment = await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Leads Test Experiment',
+        page: leadsTestPage.id,
+        status: 'running',
+        variants: [
+          { trafficPercent: 50, variant: leadsTestVariant.id },
+          { trafficPercent: 50, variant: secondVariant.id },
+        ],
+      },
+    })
+  })
+
+  test('can create lead with email only', async () => {
+    const lead = await payload.create({
+      collection: 'leads',
+      data: {
+        email: 'test@example.com',
+      },
+    })
+
+    expect(lead.email).toBe('test@example.com')
+    // convertedAt should be auto-set
+    expect(lead.convertedAt).toBeDefined()
+    const convertedDate = new Date(lead.convertedAt!)
+    expect(convertedDate.getTime()).toBeLessThanOrEqual(Date.now())
+  })
+
+  test('can create lead with full attribution', async () => {
+    const lead = await payload.create({
+      collection: 'leads',
+      data: {
+        name: 'Test User',
+        email: 'attributed@example.com',
+        experiment: leadsTestExperiment.id,
+        page: leadsTestPage.id,
+        source: 'hero-cta',
+        variant: leadsTestVariant.id,
+        visitorId: 'visitor-abc-123',
+      },
+    })
+
+    expect(lead.email).toBe('attributed@example.com')
+    expect(lead.name).toBe('Test User')
+    expect(lead.visitorId).toBe('visitor-abc-123')
+    expect(lead.source).toBe('hero-cta')
+    expect(lead.convertedAt).toBeDefined()
+
+    // Verify relationships (may be populated or ID depending on depth)
+    const experimentRef = typeof lead.experiment === 'object' ? lead.experiment.id : lead.experiment
+    expect(experimentRef).toBe(leadsTestExperiment.id)
+
+    const variantRef = typeof lead.variant === 'object' ? lead.variant.id : lead.variant
+    expect(variantRef).toBe(leadsTestVariant.id)
+
+    const pageRef = typeof lead.page === 'object' ? lead.page.id : lead.page
+    expect(pageRef).toBe(leadsTestPage.id)
+  })
+
+  test('can create lead with custom formData', async () => {
+    const customFormData = {
+      company: 'Acme Corp',
+      phone: '+1-555-1234',
+      preferredTime: 'morning',
+      subscribeNewsletter: true,
+    }
+
+    const lead = await payload.create({
+      collection: 'leads',
+      data: {
+        email: 'formdata@example.com',
+        formData: customFormData,
+      },
+    })
+
+    expect(lead.email).toBe('formdata@example.com')
+    expect(lead.formData).toEqual(customFormData)
+    expect(lead.formData.company).toBe('Acme Corp')
+    expect(lead.formData.subscribeNewsletter).toBe(true)
+  })
+
+  test('lead captures visitorId', async () => {
+    const visitorId = 'unique-visitor-id-xyz-789'
+
+    const lead = await payload.create({
+      collection: 'leads',
+      data: {
+        email: 'visitor@example.com',
+        visitorId,
+      },
+    })
+
+    expect(lead.email).toBe('visitor@example.com')
+    expect(lead.visitorId).toBe(visitorId)
+  })
+})
+
 describe('Visitor variant assignment', () => {
   test('returns null when no running experiment exists', async () => {
     // Create a page without any running experiment
