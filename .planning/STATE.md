@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2025-12-29)
+See: .planning/PROJECT.md (updated 2025-12-30)
 
 **Core value:** Clean, typed content schema that balances editor flexibility with content consistency and developer ergonomics.
-**Current focus:** Milestone complete
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 4 of 4 (Integration)
-Plan: 1 of 1 in current phase
-Status: Milestone complete
-Last activity: 2025-12-30 — Completed 04-01-PLAN.md
+Phase: v1.0 complete
+Plan: N/A
+Status: Ready to plan next milestone
+Last activity: 2025-12-30 — v1.0 milestone complete
 
-Progress: ██████████ 100%
+Progress: v1.0 SHIPPED
 
 ## Performance Metrics
 
@@ -32,10 +32,6 @@ Progress: ██████████ 100%
 | 3. Reusable Blocks | 1 | 3 min | 3 min |
 | 4. Integration | 1 | 5 min | 5 min |
 
-**Recent Trend:**
-- Last 5 plans: 8m, 5m, 3m, 5m
-- Trend: stable
-
 ## Accumulated Context
 
 ### Decisions
@@ -43,18 +39,22 @@ Progress: ██████████ 100%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-(None yet)
+- Section-based pages: Good — clear separation of hero/content/footer
+- Hybrid blocks: Good — ReusableBlocks collection works well
+- Dev app first: Good — pattern validated, ready for extraction
 
 ### Deferred Issues
 
-None yet.
+- FAQ block type (to v1.1)
+- Stats block type (to v1.1)
+- Plugin extraction (future)
 
 ### Blockers/Concerns
 
-None yet.
+None.
 
 ## Session Continuity
 
 Last session: 2025-12-30
-Stopped at: Milestone complete — Completed 04-01-PLAN.md (Integration tests)
+Stopped at: v1.0 milestone complete
 Resume file: None
