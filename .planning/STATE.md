@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2025-12-29)
 
 **Core value:** Clean, typed content schema that balances editor flexibility with content consistency and developer ergonomics.
-**Current focus:** Phase 2 — Block Types
+**Current focus:** Phase 3 — Reusable Blocks
 
 ## Current Position
 
-Phase: 2 of 4 (Block Types)
+Phase: 3 of 4 (Reusable Blocks)
 Plan: 1 of 1 in current phase
-Status: Plan complete
-Last activity: 2025-12-30 — Completed 02-01-PLAN.md
+Status: Phase complete
+Last activity: 2025-12-30 — Completed 03-01-PLAN.md
 
-Progress: █████░░░░░ 50%
+Progress: ███████░░░ 75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 6.5 min
-- Total execution time: 0.22 hours
+- Total plans completed: 3
+- Average duration: 5.3 min
+- Total execution time: 0.27 hours
 
 **By Phase:**
 
@@ -29,9 +29,10 @@ Progress: █████░░░░░ 50%
 |-------|-------|-------|----------|
 | 1. Foundation | 1 | 8 min | 8 min |
 | 2. Block Types | 1 | 5 min | 5 min |
+| 3. Reusable Blocks | 1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 8m, 5m
+- Last 5 plans: 8m, 5m, 3m
 - Trend: improving
 
 ## Accumulated Context
@@ -54,5 +55,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2025-12-30
-Stopped at: Completed 02-01-PLAN.md (Hero and Accordion blocks implemented)
+Stopped at: Completed 03-01-PLAN.md (ReusableBlocks collection and reference field)
 Resume file: None

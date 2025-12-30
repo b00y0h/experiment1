@@ -8,6 +8,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Pages } from './collections/Pages.js'
+import { ReusableBlocks } from './collections/ReusableBlocks.js'
 import { testEmailAdapter } from './helpers/testEmailAdapter.js'
 import { seed } from './seed.js'
 
@@ -38,6 +39,7 @@ const buildConfigWithMemoryDB = async () => {
     },
     collections: [
       Pages,
+      ReusableBlocks,
       {
         slug: 'posts',
         fields: [],

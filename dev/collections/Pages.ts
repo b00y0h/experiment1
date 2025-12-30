@@ -103,6 +103,17 @@ export const Pages: CollectionConfig = {
             },
           ],
         },
+        {
+          slug: 'reusableBlockRef',
+          fields: [
+            {
+              name: 'block',
+              type: 'relationship',
+              relationTo: 'reusable-blocks',
+              required: true,
+            },
+          ],
+        },
       ],
     },
     {
