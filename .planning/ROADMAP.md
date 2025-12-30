@@ -60,7 +60,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 11-01: TBD
+- [x] 11-01: Visitor ID + deterministic assignment + getAssignedVariant helper
 
 ### Phase 12: Lead Capture
 
@@ -111,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 8. Rendering Contract | v2.0 | 2/2 | Complete | 2025-12-30 |
 | 9. Page Variants Shell | v2.0 | 2/2 | Complete | 2025-12-30 |
 | 10. Experiment Collection | v3.0 | 1/1 | Complete | 2025-12-30 |
-| 11. Visitor Assignment | v3.0 | 0/? | Not started | - |
+| 11. Visitor Assignment | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 12. Lead Capture | v3.0 | 0/? | Not started | - |
 | 13. Analytics Events | v3.0 | 0/? | Not started | - |
 | 14. Experiment Dashboard | v3.0 | 0/? | Not started | - |

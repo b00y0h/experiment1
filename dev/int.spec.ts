@@ -7,9 +7,12 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
 import { resolvedPageHandler } from './endpoints/resolvedPage.js'
 import { resolvedPageWithVariantHandler } from './endpoints/resolvedPageWithVariant.js'
+import { assignVariantByTraffic } from './utils/assignVariant.js'
+import { getAssignedVariant } from './utils/getAssignedVariant.js'
 import { getResolvedPage } from './utils/getResolvedPage.js'
 import { getResolvedPageWithVariant } from './utils/getResolvedPageWithVariant.js'
 import { resolvePageBlocks } from './utils/resolvePageBlocks'
+import { getOrCreateVisitorId, VISITOR_COOKIE_MAX_AGE, VISITOR_COOKIE_NAME } from './utils/visitorId.js'
 
 let payload: Payload
 
@@ -2307,5 +2310,485 @@ describe('Experiments collection', () => {
         },
       }),
     ).rejects.toThrow(/variants/)
+  })
+})
+
+describe('Visitor identification', () => {
+  test('getOrCreateVisitorId returns existing visitor ID from cookies', () => {
+    const existingId = 'existing-visitor-id-123'
+    const mockCookies = {
+      get: (name: string) => {
+        if (name === VISITOR_COOKIE_NAME) {
+          return { value: existingId }
+        }
+        return undefined
+      },
+    }
+
+    const result = getOrCreateVisitorId(mockCookies)
+
+    expect(result.visitorId).toBe(existingId)
+    expect(result.isNew).toBe(false)
+  })
+
+  test('getOrCreateVisitorId generates new ID when cookie is missing', () => {
+    const mockCookies = {
+      get: () => undefined,
+    }
+
+    const result = getOrCreateVisitorId(mockCookies)
+
+    expect(result.visitorId).toBeDefined()
+    expect(result.visitorId).toHaveLength(21) // nanoid(21) standard length
+    expect(result.isNew).toBe(true)
+  })
+
+  test('getOrCreateVisitorId handles string cookie format', () => {
+    const existingId = 'string-format-visitor-id'
+    const mockCookies = {
+      get: (name: string) => {
+        if (name === VISITOR_COOKIE_NAME) {
+          return existingId // Some implementations return string directly
+        }
+        return undefined
+      },
+    }
+
+    const result = getOrCreateVisitorId(mockCookies)
+
+    expect(result.visitorId).toBe(existingId)
+    expect(result.isNew).toBe(false)
+  })
+
+  test('exports correct cookie constants', () => {
+    expect(VISITOR_COOKIE_NAME).toBe('visitor_id')
+    expect(VISITOR_COOKIE_MAX_AGE).toBe(31536000) // 365 days in seconds
+  })
+})
+
+describe('Variant assignment', () => {
+  test('assignVariantByTraffic is deterministic (same inputs = same output)', () => {
+    const params = {
+      experimentId: 'exp-123',
+      variants: [
+        { trafficPercent: 50, variantId: 'A' },
+        { trafficPercent: 50, variantId: 'B' },
+      ],
+      visitorId: 'visitor-abc',
+    }
+
+    // Call 100 times with same inputs
+    const results: string[] = []
+    for (let i = 0; i < 100; i++) {
+      results.push(assignVariantByTraffic(params).variantId)
+    }
+
+    // All results should be identical
+    const firstResult = results[0]
+    expect(results.every((r) => r === firstResult)).toBe(true)
+  })
+
+  test('assignVariantByTraffic distributes traffic according to percentages', () => {
+    const variants = [
+      { trafficPercent: 50, variantId: 'A' },
+      { trafficPercent: 50, variantId: 'B' },
+    ]
+
+    // Generate 1000 unique visitor IDs and assign them
+    const counts = { A: 0, B: 0 }
+    for (let i = 0; i < 1000; i++) {
+      const result = assignVariantByTraffic({
+        experimentId: 'distribution-test',
+        variants,
+        visitorId: `visitor-${i}-${Math.random()}`,
+      })
+      counts[result.variantId as 'A' | 'B']++
+    }
+
+    // With 50/50 split, each should be roughly 500 (allow 15% margin for randomness)
+    expect(counts.A).toBeGreaterThan(350)
+    expect(counts.A).toBeLessThan(650)
+    expect(counts.B).toBeGreaterThan(350)
+    expect(counts.B).toBeLessThan(650)
+  })
+
+  test('assignVariantByTraffic handles unequal splits correctly', () => {
+    const variants = [
+      { trafficPercent: 70, variantId: 'control' },
+      { trafficPercent: 30, variantId: 'treatment' },
+    ]
+
+    const counts = { control: 0, treatment: 0 }
+    for (let i = 0; i < 1000; i++) {
+      const result = assignVariantByTraffic({
+        experimentId: 'unequal-test',
+        variants,
+        visitorId: `visitor-unequal-${i}-${Math.random()}`,
+      })
+      counts[result.variantId as 'control' | 'treatment']++
+    }
+
+    // 70/30 split - control should be roughly 700, treatment roughly 300
+    expect(counts.control).toBeGreaterThan(550)
+    expect(counts.control).toBeLessThan(850)
+    expect(counts.treatment).toBeGreaterThan(150)
+    expect(counts.treatment).toBeLessThan(450)
+  })
+})
+
+describe('Visitor variant assignment', () => {
+  test('returns null when no running experiment exists', async () => {
+    // Create a page without any running experiment
+    await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'no-experiment-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Page Without Experiment',
+          },
+        ],
+        title: 'Page Without Experiment',
+      },
+    })
+
+    const result = await getAssignedVariant({
+      pageSlug: 'no-experiment-page',
+      payload,
+      visitorId: 'visitor-no-exp',
+    })
+
+    expect(result).toBeNull()
+  })
+
+  test('assigns variant deterministically (same visitor always gets same variant)', async () => {
+    // Create a page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'deterministic-test-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Base CTA',
+            },
+            headline: 'Deterministic Test Page',
+          },
+        ],
+        title: 'Deterministic Test Page',
+      },
+    })
+
+    // Create two variants
+    const variantA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Deterministic Variant A',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/det-a', ctaText: 'A CTA' },
+            headline: 'Deterministic Variant A Hero',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    const variantB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Deterministic Variant B',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/det-b', ctaText: 'B CTA' },
+            headline: 'Deterministic Variant B Hero',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    // Create running experiment
+    await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Deterministic Test Experiment',
+        page: basePage.id,
+        status: 'running',
+        variants: [
+          { trafficPercent: 50, variant: variantA.id },
+          { trafficPercent: 50, variant: variantB.id },
+        ],
+      },
+    })
+
+    // Call multiple times with same visitor ID
+    const visitorId = 'deterministic-visitor-xyz'
+    const results: string[] = []
+    for (let i = 0; i < 5; i++) {
+      const result = await getAssignedVariant({
+        pageSlug: 'deterministic-test-page',
+        payload,
+        visitorId,
+      })
+      results.push(result!.variantId)
+    }
+
+    // All results should be the same variant
+    const firstVariantId = results[0]
+    expect(results.every((r) => r === firstVariantId)).toBe(true)
+  })
+
+  test('different visitors get distributed across variants', async () => {
+    // Create a page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'distribution-test-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Base CTA',
+            },
+            headline: 'Distribution Test Page',
+          },
+        ],
+        title: 'Distribution Test Page',
+      },
+    })
+
+    // Create two variants
+    const variantA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Distribution Variant A',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/dist-a', ctaText: 'A CTA' },
+            headline: 'Distribution Variant A Hero',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    const variantB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Distribution Variant B',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/dist-b', ctaText: 'B CTA' },
+            headline: 'Distribution Variant B Hero',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    // Create running experiment with 50/50 split
+    await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Distribution Test Experiment',
+        page: basePage.id,
+        status: 'running',
+        variants: [
+          { trafficPercent: 50, variant: variantA.id },
+          { trafficPercent: 50, variant: variantB.id },
+        ],
+      },
+    })
+
+    // Assign 20 different visitors
+    const assignedVariants: string[] = []
+    for (let i = 0; i < 20; i++) {
+      const result = await getAssignedVariant({
+        pageSlug: 'distribution-test-page',
+        payload,
+        visitorId: `distribution-visitor-${i}`,
+      })
+      assignedVariants.push(result!.variantId)
+    }
+
+    // Should have at least some of each variant (not all same)
+    const variantACount = assignedVariants.filter((v) => v === variantA.id).length
+    const variantBCount = assignedVariants.filter((v) => v === variantB.id).length
+
+    expect(variantACount).toBeGreaterThan(0)
+    expect(variantBCount).toBeGreaterThan(0)
+  })
+
+  test('returns resolved page with variant overrides applied', async () => {
+    // Create a page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'override-test-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Original CTA',
+            },
+            headline: 'Original Hero Headline',
+          },
+        ],
+        title: 'Override Test Page',
+      },
+    })
+
+    // Create variant with hero override
+    const variant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Override Test Variant',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/override', ctaText: 'Override CTA' },
+            headline: 'Override Hero Headline',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    // Create running experiment with 100% traffic to single variant
+    // (need 2 variants minimum, but we'll use 99/1 split to ensure we get this variant)
+    const dummyVariant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Dummy Variant',
+        page: basePage.id,
+      },
+    })
+
+    await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Override Test Experiment',
+        page: basePage.id,
+        status: 'running',
+        variants: [
+          { trafficPercent: 100, variant: variant.id },
+          { trafficPercent: 0, variant: dummyVariant.id },
+        ],
+      },
+    })
+
+    const result = await getAssignedVariant({
+      pageSlug: 'override-test-page',
+      payload,
+      visitorId: 'override-test-visitor',
+    })
+
+    expect(result).not.toBeNull()
+    expect(result!.resolvedPage).toBeDefined()
+    expect(result!.resolvedPage.hero?.[0]?.headline).toBe('Override Hero Headline')
+    expect(result!.resolvedPage.hero?.[0]?.cta?.ctaText).toBe('Override CTA')
+    expect(result!.resolvedPage._variant?.id).toBe(variant.id)
+  })
+
+  test('handles experiment with unequal traffic split (70/30)', async () => {
+    // Create a page
+    const basePage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'unequal-split-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Base CTA',
+            },
+            headline: 'Unequal Split Test Page',
+          },
+        ],
+        title: 'Unequal Split Test Page',
+      },
+    })
+
+    // Create two variants
+    const controlVariant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Control Variant (70%)',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/control', ctaText: 'Control CTA' },
+            headline: 'Control Variant Hero',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    const treatmentVariant = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Treatment Variant (30%)',
+        heroOverride: [
+          {
+            blockType: 'heroBlock',
+            cta: { ctaLink: '/treatment', ctaText: 'Treatment CTA' },
+            headline: 'Treatment Variant Hero',
+          },
+        ],
+        page: basePage.id,
+      },
+    })
+
+    // Create running experiment with 70/30 split
+    await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Unequal Split Experiment',
+        page: basePage.id,
+        status: 'running',
+        variants: [
+          { trafficPercent: 70, variant: controlVariant.id },
+          { trafficPercent: 30, variant: treatmentVariant.id },
+        ],
+      },
+    })
+
+    // Assign 50 different visitors and count distribution
+    const counts: Record<string, number> = {}
+    for (let i = 0; i < 50; i++) {
+      const result = await getAssignedVariant({
+        pageSlug: 'unequal-split-page',
+        payload,
+        visitorId: `unequal-visitor-${i}`,
+      })
+      const variantId = result!.variantId
+      counts[variantId] = (counts[variantId] || 0) + 1
+    }
+
+    // Control (70%) should have more assignments than treatment (30%)
+    const controlCount = counts[controlVariant.id] || 0
+    const treatmentCount = counts[treatmentVariant.id] || 0
+
+    // With 50 visitors and 70/30 split, control should generally have more
+    // Allow for some variance but control should have at least as many as treatment
+    expect(controlCount + treatmentCount).toBe(50)
+    // Control should have meaningfully more than treatment in a 70/30 split
+    expect(controlCount).toBeGreaterThanOrEqual(treatmentCount)
   })
 })
