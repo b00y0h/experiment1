@@ -60,6 +60,10 @@ describe('Pages collection', () => {
         hero: [
           {
             blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Learn More',
+            },
             headline: 'Welcome to Our Site',
             subheadline: 'This is a test subheadline',
           },
@@ -109,6 +113,16 @@ describe('Pages collection', () => {
             ],
           },
         ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Get Started',
+            },
+            headline: 'Content Page Hero',
+          },
+        ],
         title: 'Test Page with Content',
       },
     })
@@ -123,6 +137,16 @@ describe('Pages collection', () => {
       collection: 'pages',
       data: {
         slug: 'duplicate-slug',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: '/signup',
+              ctaText: 'Sign Up',
+            },
+            headline: 'First Page Hero',
+          },
+        ],
         title: 'First Page',
       },
     })
@@ -132,6 +156,16 @@ describe('Pages collection', () => {
         collection: 'pages',
         data: {
           slug: 'duplicate-slug',
+          hero: [
+            {
+              blockType: 'heroBlock',
+              cta: {
+                ctaLink: '/signup',
+                ctaText: 'Sign Up',
+              },
+              headline: 'Second Page Hero',
+            },
+          ],
           title: 'Second Page',
         },
       }),
@@ -154,6 +188,16 @@ describe('Pages collection', () => {
                 question: 'How do I get started?',
               },
             ],
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Get Started',
+            },
+            headline: 'FAQ Page Hero',
           },
         ],
         title: 'Test FAQ Page',
@@ -189,6 +233,16 @@ describe('Pages collection', () => {
             ],
           },
         ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'View Stats',
+            },
+            headline: 'Stats Page Hero',
+          },
+        ],
         title: 'Test Stats Page',
       },
     })
@@ -213,6 +267,10 @@ describe('Pages blockId generation', () => {
         hero: [
           {
             blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
             headline: 'Test Hero for BlockId',
           },
         ],
@@ -233,6 +291,10 @@ describe('Pages blockId generation', () => {
         hero: [
           {
             blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
             headline: 'Original Headline',
           },
         ],
@@ -273,6 +335,10 @@ describe('Pages blockId generation', () => {
         hero: [
           {
             blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
             headline: 'Custom BlockId Hero',
             settings: {
               blockId: customBlockId,
@@ -382,6 +448,16 @@ describe('ReusableBlocks collection', () => {
             blockType: 'reusableBlockRef',
           },
         ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Reusable Block Test Hero',
+          },
+        ],
         title: 'Page with Reusable Block',
       },
     })
@@ -413,6 +489,16 @@ describe('ReusableBlocks collection', () => {
           {
             block: reusableBlock.id,
             blockType: 'reusableBlockRef',
+          },
+        ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Population Test Hero',
           },
         ],
         title: 'Page for Population Test',
@@ -516,6 +602,10 @@ describe('Field validation', () => {
           hero: [
             {
               blockType: 'heroBlock',
+              cta: {
+                ctaLink: 'https://example.com',
+                ctaText: 'Test CTA',
+              },
               headline: longHeadline,
             },
           ],
@@ -535,6 +625,10 @@ describe('Field validation', () => {
         hero: [
           {
             blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
             headline: maxHeadline,
           },
         ],
@@ -545,6 +639,9 @@ describe('Field validation', () => {
     expect(page.hero?.[0]?.headline).toBe(maxHeadline)
   })
 
+  // Note: Incomplete CTA tests are now caught by page-level validation (conversion element required)
+  // which runs before field-level CTA validation. Both validations reject the page, just with different
+  // error messages. Testing that page is rejected correctly.
   test('rejects CTA with text but no link', async () => {
     await expect(
       payload.create({
@@ -564,7 +661,7 @@ describe('Field validation', () => {
           title: 'Test Incomplete CTA',
         },
       }),
-    ).rejects.toThrow(/Call to Action/)
+    ).rejects.toThrow(/hero/)
   })
 
   test('rejects CTA with link but no text', async () => {
@@ -586,7 +683,7 @@ describe('Field validation', () => {
           title: 'Test Incomplete CTA Link Only',
         },
       }),
-    ).rejects.toThrow(/Call to Action/)
+    ).rejects.toThrow(/hero/)
   })
 
   test('rejects invalid URL format in ctaLink', async () => {
@@ -656,24 +753,9 @@ describe('Field validation', () => {
     expect(page.hero?.[0]?.cta?.ctaLink).toBe('/contact')
   })
 
-  test('accepts empty CTA (both fields empty)', async () => {
-    const page = await payload.create({
-      collection: 'pages',
-      data: {
-        slug: 'test-empty-cta',
-        hero: [
-          {
-            blockType: 'heroBlock',
-            cta: {},
-            headline: 'Test Empty CTA',
-          },
-        ],
-        title: 'Test Empty CTA Page',
-      },
-    })
-
-    expect(page.hero?.[0]?.headline).toBe('Test Empty CTA')
-  })
+  // Note: Empty CTA is no longer allowed at page level due to conversion element requirement.
+  // The CTA group field validation still allows empty CTA (both fields empty or omitted),
+  // but page-level validation requires at least one hero block with a complete CTA.
 
   test('rejects accordion with more than 20 items', async () => {
     const items = Array.from({ length: 21 }, (_, i) => ({
@@ -689,6 +771,16 @@ describe('Field validation', () => {
             {
               blockType: 'accordionBlock',
               items,
+            },
+          ],
+          hero: [
+            {
+              blockType: 'heroBlock',
+              cta: {
+                ctaLink: 'https://example.com',
+                ctaText: 'Test CTA',
+              },
+              headline: 'Accordion Test Hero',
             },
           ],
           title: 'Test Accordion Max Items',
@@ -712,6 +804,16 @@ describe('Field validation', () => {
             items,
           },
         ],
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Accordion 20 Items Hero',
+          },
+        ],
         title: 'Test Accordion 20 Items',
       },
     })
@@ -719,5 +821,99 @@ describe('Field validation', () => {
     if (page.content?.[0]?.blockType === 'accordionBlock') {
       expect(page.content[0].items).toHaveLength(20)
     }
+  })
+})
+
+describe('Page-level conversion element validation', () => {
+  // Note: Payload wraps validation errors in generic format like "The following field is invalid: hero"
+  // Tests verify the validation occurs by matching on the field path 'hero'
+
+  test('rejects page without hero (no conversion element)', async () => {
+    await expect(
+      payload.create({
+        collection: 'pages',
+        data: {
+          slug: 'test-no-hero',
+          title: 'Page Without Hero',
+        },
+      }),
+    ).rejects.toThrow(/hero/)
+  })
+
+  test('rejects page with empty hero array', async () => {
+    await expect(
+      payload.create({
+        collection: 'pages',
+        data: {
+          slug: 'test-empty-hero',
+          hero: [],
+          title: 'Page With Empty Hero',
+        },
+      }),
+    ).rejects.toThrow(/hero/)
+  })
+
+  test('rejects page with hero but no CTA fields', async () => {
+    await expect(
+      payload.create({
+        collection: 'pages',
+        data: {
+          slug: 'test-hero-no-cta',
+          hero: [
+            {
+              blockType: 'heroBlock',
+              headline: 'No CTA Hero',
+            },
+          ],
+          title: 'Page With Hero But No CTA',
+        },
+      }),
+    ).rejects.toThrow(/hero/)
+  })
+
+  test('rejects page with hero and empty CTA strings', async () => {
+    await expect(
+      payload.create({
+        collection: 'pages',
+        data: {
+          slug: 'test-hero-empty-cta',
+          hero: [
+            {
+              blockType: 'heroBlock',
+              cta: {
+                ctaLink: '',
+                ctaText: '',
+              },
+              headline: 'Empty CTA Hero',
+            },
+          ],
+          title: 'Page With Hero Empty CTA',
+        },
+      }),
+    ).rejects.toThrow(/hero/)
+  })
+
+  test('accepts page with valid conversion element (hero with CTA)', async () => {
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-valid-conversion',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com/signup',
+              ctaText: 'Sign Up Now',
+            },
+            headline: 'Valid Conversion Element',
+          },
+        ],
+        title: 'Page With Valid Conversion Element',
+      },
+    })
+
+    expect(page.slug).toBe('test-valid-conversion')
+    expect(page.hero?.[0]?.cta?.ctaText).toBe('Sign Up Now')
+    expect(page.hero?.[0]?.cta?.ctaLink).toBe('https://example.com/signup')
   })
 })

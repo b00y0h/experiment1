@@ -2,9 +2,20 @@ import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { nanoid } from 'nanoid'
+import { ValidationError } from 'payload'
 
 import { createBlockSettings } from '../fields/blockSettings'
 import { ctaValidator, maxLengthValidator, urlValidator } from '../validators/fieldValidators'
+
+/**
+ * Restricted Lexical editor that removes upload and relationship features.
+ * Keeps: bold, italic, underline, strikethrough, links, lists, headings, paragraphs
+ * Removes: upload (embedded media), relationship (embedded documents)
+ */
+const restrictedLexicalEditor = lexicalEditor({
+  features: ({ defaultFeatures }) =>
+    defaultFeatures.filter((feature) => !['relationship', 'upload'].includes(feature.key)),
+})
 
 type BlockWithSettings = {
   [key: string]: unknown
@@ -13,6 +24,16 @@ type BlockWithSettings = {
     analyticsLabel?: string
     blockId?: string
   }
+}
+
+type HeroBlock = {
+  blockType: 'heroBlock'
+  cta?: {
+    ctaLink?: string
+    ctaText?: string
+  }
+  headline?: string
+  subheadline?: string
 }
 
 /**
@@ -41,6 +62,54 @@ const ensureBlockIds: CollectionBeforeChangeHook = ({ data, operation }) => {
   processBlocks(data.hero as BlockWithSettings[] | undefined)
   processBlocks(data.content as BlockWithSettings[] | undefined)
   processBlocks(data.footer as BlockWithSettings[] | undefined)
+
+  return data
+}
+
+/**
+ * Page-level validation hook that ensures pages contain at least one conversion element.
+ * A conversion element is defined as a hero block with both CTA text and CTA link set.
+ */
+const validateConversionElement: CollectionBeforeChangeHook = ({ data, operation }) => {
+  // Only validate on create and update
+  if (operation !== 'create' && operation !== 'update') {
+    return data
+  }
+
+  const heroBlocks = data.hero as HeroBlock[] | undefined
+
+  // Check if hero array exists and has at least one heroBlock
+  if (!Array.isArray(heroBlocks) || heroBlocks.length === 0) {
+    throw new ValidationError({
+      errors: [
+        {
+          message: 'Page must contain at least one conversion element (hero with CTA)',
+          path: 'hero',
+        },
+      ],
+    })
+  }
+
+  // Check if at least one heroBlock has both ctaText and ctaLink set (non-empty)
+  const hasConversionElement = heroBlocks.some((block) => {
+    if (block.blockType !== 'heroBlock') {
+      return false
+    }
+    const ctaText = block.cta?.ctaText?.trim()
+    const ctaLink = block.cta?.ctaLink?.trim()
+    return Boolean(ctaText) && Boolean(ctaLink)
+  })
+
+  if (!hasConversionElement) {
+    throw new ValidationError({
+      errors: [
+        {
+          message: 'Page must contain at least one conversion element (hero with CTA)',
+          path: 'hero',
+        },
+      ],
+    })
+  }
 
   return data
 }
@@ -127,7 +196,7 @@ export const Pages: CollectionConfig = {
             {
               name: 'body',
               type: 'richText',
-              editor: lexicalEditor(),
+              editor: restrictedLexicalEditor,
             },
             createBlockSettings(),
           ],
@@ -147,7 +216,7 @@ export const Pages: CollectionConfig = {
                 {
                   name: 'content',
                   type: 'richText',
-                  editor: lexicalEditor(),
+                  editor: restrictedLexicalEditor,
                 },
               ],
               maxRows: 20,
@@ -182,7 +251,7 @@ export const Pages: CollectionConfig = {
                 {
                   name: 'answer',
                   type: 'richText',
-                  editor: lexicalEditor(),
+                  editor: restrictedLexicalEditor,
                 },
               ],
               maxRows: 30,
@@ -237,6 +306,6 @@ export const Pages: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeChange: [ensureBlockIds],
+    beforeChange: [validateConversionElement, ensureBlockIds],
   },
 }

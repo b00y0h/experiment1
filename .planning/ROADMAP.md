@@ -59,7 +59,7 @@ Plans:
 
 Plans:
 - [x] 07-01: Field-level constraints (headline maxLength, CTA validation, array limits)
-- [ ] 07-02: Page-level validation (conversion element required) + Lexical editor config
+- [x] 07-02: Page-level validation (conversion element required) + Lexical editor config
 
 ### Phase 8: Rendering Contract
 
@@ -96,6 +96,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Integration | v1.0 | 1/1 | Complete | 2025-12-30 |
 | 5. Block Library Expansion | v2.0 | 1/1 | Complete | 2025-12-30 |
 | 6. Block Settings + Stable IDs | v2.0 | 2/2 | Complete | 2025-12-30 |
-| 7. Validation + Guardrails | v2.0 | 1/2 | In progress | - |
+| 7. Validation + Guardrails | v2.0 | 2/2 | Complete | 2025-12-30 |
 | 8. Rendering Contract | v2.0 | 0/? | Not started | - |
 | 9. Page Variants Shell | v2.0 | 0/? | Not started | - |

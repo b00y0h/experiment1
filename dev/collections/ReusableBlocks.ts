@@ -5,6 +5,16 @@ import { nanoid } from 'nanoid'
 
 import { createBlockSettings } from '../fields/blockSettings'
 
+/**
+ * Restricted Lexical editor that removes upload and relationship features.
+ * Keeps: bold, italic, underline, strikethrough, links, lists, headings, paragraphs
+ * Removes: upload (embedded media), relationship (embedded documents)
+ */
+const restrictedLexicalEditor = lexicalEditor({
+  features: ({ defaultFeatures }) =>
+    defaultFeatures.filter((feature) => !['relationship', 'upload'].includes(feature.key)),
+})
+
 type BlockWithSettings = {
   [key: string]: unknown
   blockType: string
@@ -86,7 +96,7 @@ export const ReusableBlocks: CollectionConfig = {
                 {
                   name: 'content',
                   type: 'richText',
-                  editor: lexicalEditor(),
+                  editor: restrictedLexicalEditor,
                 },
               ],
             },
@@ -99,7 +109,7 @@ export const ReusableBlocks: CollectionConfig = {
             {
               name: 'body',
               type: 'richText',
-              editor: lexicalEditor(),
+              editor: restrictedLexicalEditor,
             },
             createBlockSettings(),
           ],
@@ -129,7 +139,7 @@ export const ReusableBlocks: CollectionConfig = {
                 {
                   name: 'answer',
                   type: 'richText',
-                  editor: lexicalEditor(),
+                  editor: restrictedLexicalEditor,
                 },
               ],
             },
