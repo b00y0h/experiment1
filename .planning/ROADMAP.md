@@ -76,12 +76,12 @@ Plans:
 
 **Goal**: Introduce variants and experiments as first-class objects so you can preview overrides and prepare for A/B testing
 **Depends on**: Phase 8
-**Research**: Likely (A/B testing patterns, experiment data modeling)
-**Research topics**: Variant inheritance patterns, experiment assignment, preview modes
-**Plans**: TBD
+**Research**: Complete (separate collection model, section replacement semantics)
+**Plans**: 2
 
 Plans:
-- [ ] 09-01: TBD
+- [x] 09-01: PageVariants collection with block override fields
+- [ ] 09-02: Variant preview endpoint and resolution logic
 
 ## Progress
 
@@ -98,4 +98,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Block Settings + Stable IDs | v2.0 | 2/2 | Complete | 2025-12-30 |
 | 7. Validation + Guardrails | v2.0 | 2/2 | Complete | 2025-12-30 |
 | 8. Rendering Contract | v2.0 | 2/2 | Complete | 2025-12-30 |
-| 9. Page Variants Shell | v2.0 | 0/? | Not started | - |
+| 9. Page Variants Shell | v2.0 | 1/2 | In progress | - |
