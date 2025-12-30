@@ -4,6 +4,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { nanoid } from 'nanoid'
 
 import { createBlockSettings } from '../fields/blockSettings'
+import { ctaValidator, maxLengthValidator, urlValidator } from '../validators/fieldValidators'
 
 type BlockWithSettings = {
   [key: string]: unknown
@@ -74,7 +75,9 @@ export const Pages: CollectionConfig = {
             {
               name: 'headline',
               type: 'text',
+              maxLength: 100,
               required: true,
+              validate: maxLengthValidator(100),
             },
             {
               name: 'subheadline',
@@ -91,14 +94,17 @@ export const Pages: CollectionConfig = {
                   name: 'ctaText',
                   type: 'text',
                   label: 'Button Label',
+                  maxLength: 50,
                 },
                 {
                   name: 'ctaLink',
                   type: 'text',
                   label: 'Button URL',
+                  validate: urlValidator,
                 },
               ],
               label: 'Call to Action',
+              validate: ctaValidator,
             },
             {
               name: 'media',
@@ -144,6 +150,7 @@ export const Pages: CollectionConfig = {
                   editor: lexicalEditor(),
                 },
               ],
+              maxRows: 20,
             },
             createBlockSettings(),
           ],
@@ -178,6 +185,7 @@ export const Pages: CollectionConfig = {
                   editor: lexicalEditor(),
                 },
               ],
+              maxRows: 30,
             },
             createBlockSettings(),
           ],
@@ -204,6 +212,7 @@ export const Pages: CollectionConfig = {
                   type: 'text',
                 },
               ],
+              maxRows: 12,
             },
             createBlockSettings(),
           ],

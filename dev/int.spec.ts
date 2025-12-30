@@ -503,3 +503,221 @@ describe('ReusableBlocks collection', () => {
     expect(reusableBlock.block?.[0]?.blockType).toBe('statsBlock')
   })
 })
+
+describe('Field validation', () => {
+  test('rejects headline exceeding max length (100 chars)', async () => {
+    const longHeadline = 'A'.repeat(101) // 101 characters
+
+    await expect(
+      payload.create({
+        collection: 'pages',
+        data: {
+          slug: 'test-long-headline',
+          hero: [
+            {
+              blockType: 'heroBlock',
+              headline: longHeadline,
+            },
+          ],
+          title: 'Test Long Headline Page',
+        },
+      }),
+    ).rejects.toThrow(/Headline/)
+  })
+
+  test('accepts headline at max length (100 chars)', async () => {
+    const maxHeadline = 'A'.repeat(100) // Exactly 100 characters
+
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-max-headline',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            headline: maxHeadline,
+          },
+        ],
+        title: 'Test Max Headline Page',
+      },
+    })
+
+    expect(page.hero?.[0]?.headline).toBe(maxHeadline)
+  })
+
+  test('rejects CTA with text but no link', async () => {
+    await expect(
+      payload.create({
+        collection: 'pages',
+        data: {
+          slug: 'test-incomplete-cta-text-only',
+          hero: [
+            {
+              blockType: 'heroBlock',
+              cta: {
+                ctaText: 'Click Me',
+                // ctaLink intentionally missing
+              },
+              headline: 'Test Hero',
+            },
+          ],
+          title: 'Test Incomplete CTA',
+        },
+      }),
+    ).rejects.toThrow(/Call to Action/)
+  })
+
+  test('rejects CTA with link but no text', async () => {
+    await expect(
+      payload.create({
+        collection: 'pages',
+        data: {
+          slug: 'test-incomplete-cta-link-only',
+          hero: [
+            {
+              blockType: 'heroBlock',
+              cta: {
+                ctaLink: 'https://example.com',
+                // ctaText intentionally missing
+              },
+              headline: 'Test Hero',
+            },
+          ],
+          title: 'Test Incomplete CTA Link Only',
+        },
+      }),
+    ).rejects.toThrow(/Call to Action/)
+  })
+
+  test('rejects invalid URL format in ctaLink', async () => {
+    await expect(
+      payload.create({
+        collection: 'pages',
+        data: {
+          slug: 'test-invalid-url',
+          hero: [
+            {
+              blockType: 'heroBlock',
+              cta: {
+                ctaLink: 'not-a-valid-url',
+                ctaText: 'Click Me',
+              },
+              headline: 'Test Hero',
+            },
+          ],
+          title: 'Test Invalid URL',
+        },
+      }),
+    ).rejects.toThrow(/Button URL/)
+  })
+
+  test('accepts valid CTA with both text and link', async () => {
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-valid-cta',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Click Me',
+            },
+            headline: 'Test Hero with CTA',
+          },
+        ],
+        title: 'Test Valid CTA Page',
+      },
+    })
+
+    expect(page.hero?.[0]?.cta?.ctaText).toBe('Click Me')
+    expect(page.hero?.[0]?.cta?.ctaLink).toBe('https://example.com')
+  })
+
+  test('accepts CTA with relative URL', async () => {
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-relative-url',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: '/contact',
+              ctaText: 'Contact Us',
+            },
+            headline: 'Test Relative URL',
+          },
+        ],
+        title: 'Test Relative URL Page',
+      },
+    })
+
+    expect(page.hero?.[0]?.cta?.ctaLink).toBe('/contact')
+  })
+
+  test('accepts empty CTA (both fields empty)', async () => {
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-empty-cta',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {},
+            headline: 'Test Empty CTA',
+          },
+        ],
+        title: 'Test Empty CTA Page',
+      },
+    })
+
+    expect(page.hero?.[0]?.headline).toBe('Test Empty CTA')
+  })
+
+  test('rejects accordion with more than 20 items', async () => {
+    const items = Array.from({ length: 21 }, (_, i) => ({
+      title: `Item ${i + 1}`,
+    }))
+
+    await expect(
+      payload.create({
+        collection: 'pages',
+        data: {
+          slug: 'test-accordion-max-items',
+          content: [
+            {
+              blockType: 'accordionBlock',
+              items,
+            },
+          ],
+          title: 'Test Accordion Max Items',
+        },
+      }),
+    ).rejects.toThrow()
+  })
+
+  test('accepts accordion at max items (20)', async () => {
+    const items = Array.from({ length: 20 }, (_, i) => ({
+      title: `Item ${i + 1}`,
+    }))
+
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-accordion-20-items',
+        content: [
+          {
+            blockType: 'accordionBlock',
+            items,
+          },
+        ],
+        title: 'Test Accordion 20 Items',
+      },
+    })
+
+    if (page.content?.[0]?.blockType === 'accordionBlock') {
+      expect(page.content[0].items).toHaveLength(20)
+    }
+  })
+})
