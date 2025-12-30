@@ -53,6 +53,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/1 | Complete | 2025-12-30 |
-| 2. Block Types | 0/TBD | Not started | - |
+| 2. Block Types | 1/1 | Complete | 2025-12-30 |
 | 3. Reusable Blocks | 0/TBD | Not started | - |
 | 4. Integration | 0/TBD | Not started | - |

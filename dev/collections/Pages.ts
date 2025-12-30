@@ -33,10 +33,36 @@ export const Pages: CollectionConfig = {
             {
               name: 'headline',
               type: 'text',
+              required: true,
             },
             {
               name: 'subheadline',
               type: 'textarea',
+            },
+            {
+              name: 'cta',
+              type: 'group',
+              label: 'Call to Action',
+              admin: {
+                condition: () => true,
+              },
+              fields: [
+                {
+                  name: 'ctaText',
+                  type: 'text',
+                  label: 'Button Label',
+                },
+                {
+                  name: 'ctaLink',
+                  type: 'text',
+                  label: 'Button URL',
+                },
+              ],
+            },
+            {
+              name: 'media',
+              type: 'upload',
+              relationTo: 'media',
             },
           ],
         },
@@ -53,6 +79,27 @@ export const Pages: CollectionConfig = {
               name: 'body',
               type: 'richText',
               editor: lexicalEditor(),
+            },
+          ],
+        },
+        {
+          slug: 'accordionBlock',
+          fields: [
+            {
+              name: 'items',
+              type: 'array',
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'content',
+                  type: 'richText',
+                  editor: lexicalEditor(),
+                },
+              ],
             },
           ],
         },
