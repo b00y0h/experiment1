@@ -20,7 +20,9 @@ export const ReusableBlocks: CollectionConfig = {
       options: [
         { label: 'Accordion', value: 'accordion' },
         { label: 'Content', value: 'content' },
+        { label: 'FAQ', value: 'faq' },
         { label: 'Footer', value: 'footer' },
+        { label: 'Stats', value: 'stats' },
       ],
     },
     {
@@ -65,6 +67,52 @@ export const ReusableBlocks: CollectionConfig = {
             {
               name: 'text',
               type: 'text',
+            },
+          ],
+        },
+        {
+          slug: 'faqBlock',
+          fields: [
+            {
+              name: 'items',
+              type: 'array',
+              fields: [
+                {
+                  name: 'question',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'answer',
+                  type: 'richText',
+                  editor: lexicalEditor(),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          slug: 'statsBlock',
+          fields: [
+            {
+              name: 'items',
+              type: 'array',
+              fields: [
+                {
+                  name: 'value',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'label',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'icon',
+                  type: 'text',
+                },
+              ],
             },
           ],
         },

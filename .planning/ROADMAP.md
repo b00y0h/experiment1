@@ -37,7 +37,7 @@ None
 **Plans**: TBD
 
 Plans:
-- [ ] 05-01: TBD (run /gsd:plan-phase 5 to break down)
+- [x] 05-01: FAQ and Stats blocks with integration tests
 
 ### Phase 6: Block Settings + Stable IDs
 
@@ -94,7 +94,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. Block Types | v1.0 | 1/1 | Complete | 2025-12-30 |
 | 3. Reusable Blocks | v1.0 | 1/1 | Complete | 2025-12-30 |
 | 4. Integration | v1.0 | 1/1 | Complete | 2025-12-30 |
-| 5. Block Library Expansion | v2.0 | 0/? | Not started | - |
+| 5. Block Library Expansion | v2.0 | 1/1 | Complete | 2025-12-30 |
 | 6. Block Settings + Stable IDs | v2.0 | 0/? | Not started | - |
 | 7. Validation + Guardrails | v2.0 | 0/? | Not started | - |
 | 8. Rendering Contract | v2.0 | 0/? | Not started | - |

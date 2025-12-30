@@ -137,6 +137,71 @@ describe('Pages collection', () => {
       }),
     ).rejects.toThrow()
   })
+
+  test('can create page with FAQ block', async () => {
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-faq-page',
+        content: [
+          {
+            blockType: 'faqBlock',
+            items: [
+              {
+                question: 'What is Payload CMS?',
+              },
+              {
+                question: 'How do I get started?',
+              },
+            ],
+          },
+        ],
+        title: 'Test FAQ Page',
+      },
+    })
+
+    expect(page.content).toHaveLength(1)
+    expect(page.content?.[0]?.blockType).toBe('faqBlock')
+    if (page.content?.[0]?.blockType === 'faqBlock') {
+      expect(page.content[0].items).toHaveLength(2)
+      expect(page.content[0].items?.[0]?.question).toBe('What is Payload CMS?')
+    }
+  })
+
+  test('can create page with Stats block', async () => {
+    const page = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'test-stats-page',
+        content: [
+          {
+            blockType: 'statsBlock',
+            items: [
+              {
+                value: '99%',
+                label: 'Customer Satisfaction',
+                icon: 'star',
+              },
+              {
+                value: '10M+',
+                label: 'Users Worldwide',
+              },
+            ],
+          },
+        ],
+        title: 'Test Stats Page',
+      },
+    })
+
+    expect(page.content).toHaveLength(1)
+    expect(page.content?.[0]?.blockType).toBe('statsBlock')
+    if (page.content?.[0]?.blockType === 'statsBlock') {
+      expect(page.content[0].items).toHaveLength(2)
+      expect(page.content[0].items?.[0]?.value).toBe('99%')
+      expect(page.content[0].items?.[0]?.label).toBe('Customer Satisfaction')
+      expect(page.content[0].items?.[0]?.icon).toBe('star')
+    }
+  })
 })
 
 describe('ReusableBlocks collection', () => {
@@ -268,5 +333,64 @@ describe('ReusableBlocks collection', () => {
         expect(populatedBlock.title).toBe('Populated Test Block')
       }
     }
+  })
+
+  test('can create reusable FAQ block', async () => {
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'faqBlock',
+            items: [
+              {
+                question: 'What is a reusable block?',
+              },
+              {
+                question: 'How do I use it?',
+              },
+            ],
+          },
+        ],
+        blockType: 'faq',
+        title: 'Reusable FAQ Section',
+      },
+    })
+
+    expect(reusableBlock.title).toBe('Reusable FAQ Section')
+    expect(reusableBlock.blockType).toBe('faq')
+    expect(reusableBlock.block).toHaveLength(1)
+    expect(reusableBlock.block?.[0]?.blockType).toBe('faqBlock')
+  })
+
+  test('can create reusable Stats block', async () => {
+    const reusableBlock = await payload.create({
+      collection: 'reusable-blocks',
+      data: {
+        block: [
+          {
+            blockType: 'statsBlock',
+            items: [
+              {
+                value: '500+',
+                label: 'Happy Clients',
+                icon: 'users',
+              },
+              {
+                value: '24/7',
+                label: 'Support',
+              },
+            ],
+          },
+        ],
+        blockType: 'stats',
+        title: 'Company Stats',
+      },
+    })
+
+    expect(reusableBlock.title).toBe('Company Stats')
+    expect(reusableBlock.blockType).toBe('stats')
+    expect(reusableBlock.block).toHaveLength(1)
+    expect(reusableBlock.block?.[0]?.blockType).toBe('statsBlock')
   })
 })

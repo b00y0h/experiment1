@@ -114,6 +114,52 @@ export const Pages: CollectionConfig = {
             },
           ],
         },
+        {
+          slug: 'faqBlock',
+          fields: [
+            {
+              name: 'items',
+              type: 'array',
+              fields: [
+                {
+                  name: 'question',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'answer',
+                  type: 'richText',
+                  editor: lexicalEditor(),
+                },
+              ],
+            },
+          ],
+        },
+        {
+          slug: 'statsBlock',
+          fields: [
+            {
+              name: 'items',
+              type: 'array',
+              fields: [
+                {
+                  name: 'value',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'label',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'icon',
+                  type: 'text',
+                },
+              ],
+            },
+          ],
+        },
       ],
     },
     {
