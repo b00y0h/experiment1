@@ -1,0 +1,164 @@
+{
+  "blocks": [
+    {
+      "slug": "accordionBlock",
+      "allowedSections": [
+        "content"
+      ],
+      "fields": [
+        {
+          "name": "items",
+          "type": "array",
+          "nestedFields": [
+            {
+              "name": "title",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "content",
+              "type": "richText"
+            }
+          ]
+        }
+      ],
+      "label": "Accordion Block"
+    },
+    {
+      "slug": "contentBlock",
+      "allowedSections": [
+        "content"
+      ],
+      "fields": [
+        {
+          "name": "body",
+          "type": "richText"
+        }
+      ],
+      "label": "Content Block"
+    },
+    {
+      "slug": "faqBlock",
+      "allowedSections": [
+        "content"
+      ],
+      "fields": [
+        {
+          "name": "items",
+          "type": "array",
+          "nestedFields": [
+            {
+              "name": "question",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "answer",
+              "type": "richText"
+            }
+          ]
+        }
+      ],
+      "label": "FAQ Block"
+    },
+    {
+      "slug": "footerBlock",
+      "allowedSections": [
+        "footer"
+      ],
+      "fields": [
+        {
+          "name": "text",
+          "type": "text"
+        }
+      ],
+      "label": "Footer Block"
+    },
+    {
+      "slug": "heroBlock",
+      "allowedSections": [
+        "hero"
+      ],
+      "fields": [
+        {
+          "name": "headline",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "subheadline",
+          "type": "textarea"
+        },
+        {
+          "name": "cta",
+          "type": "group",
+          "label": "Call to Action",
+          "nestedFields": [
+            {
+              "name": "ctaText",
+              "type": "text",
+              "label": "Button Label"
+            },
+            {
+              "name": "ctaLink",
+              "type": "text",
+              "label": "Button URL"
+            }
+          ]
+        },
+        {
+          "name": "media",
+          "type": "upload",
+          "relationTo": "media"
+        }
+      ],
+      "label": "Hero Block"
+    },
+    {
+      "slug": "reusableBlockRef",
+      "allowedSections": [
+        "content"
+      ],
+      "fields": [
+        {
+          "name": "block",
+          "type": "relationship",
+          "required": true,
+          "relationTo": "reusable-blocks"
+        }
+      ],
+      "label": "Reusable Block Reference"
+    },
+    {
+      "slug": "statsBlock",
+      "allowedSections": [
+        "content"
+      ],
+      "fields": [
+        {
+          "name": "items",
+          "type": "array",
+          "nestedFields": [
+            {
+              "name": "value",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "label",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "icon",
+              "type": "text"
+            }
+          ]
+        }
+      ],
+      "label": "Stats Block"
+    }
+  ],
+  "generatedAt": "2025-12-31T03:47:16.089Z",
+  "version": "1.0.0"
+}
