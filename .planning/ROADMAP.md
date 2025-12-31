@@ -75,7 +75,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 16. Block Registry | v4.0 | 2/2 | Complete | 2025-12-31 |
 | 17. Frontend Renderer Mapping | v4.0 | 1/1 | Complete | 2025-12-31 |
 | 18. Drift-Proof Type Sync | v4.0 | 2/2 | Complete | 2025-12-31 |
-| 19. AI-Ready Catalog | v4.0 | 0/2 | Not started | - |
+| 19. AI-Ready Catalog | v4.0 | 1/2 | In progress | - |
 
 ## 🚧 v4.0 Block ↔ Component Sync + AI Catalog (In Progress)
 
@@ -132,5 +132,5 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 19-01: Publish "available blocks" catalog endpoint for AI + tooling
+- [x] 19-01: Publish "available blocks" catalog endpoint for AI + tooling
 - [ ] 19-02: Add allowlists/guardrails for AI experiments

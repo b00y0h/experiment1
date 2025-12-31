@@ -9,6 +9,7 @@ import type { RenderableBlock } from './render/index.js'
 
 import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
 import { getBlockSlugs } from './blocks/registry.js'
+import { blockCatalogHandler } from './endpoints/blockCatalog.js'
 import { resolvedPageHandler } from './endpoints/resolvedPage.js'
 import { resolvedPageWithVariantHandler } from './endpoints/resolvedPageWithVariant.js'
 import { getBlockComponent, renderBlock, renderBlockSafe, UnknownBlock } from './render/index.js'
@@ -3571,7 +3572,7 @@ describe('renderBlock', () => {
 
     // For each registered slug, verify a component exists
     for (const slug of registeredSlugs) {
-      const component = getBlockComponent(slug as RenderableBlock['blockType'])
+      const component = getBlockComponent(slug)
       expect(component).toBeDefined()
       expect(typeof component).toBe('function')
     }
@@ -3645,22 +3646,22 @@ describe('renderBlock', () => {
     ) as { blocks: Array<{ slug: string }> }
 
     // Helper to create minimal valid block for each type
-    function createMinimalBlock(slug: string): { blockType: string; [key: string]: unknown } {
+    function createMinimalBlock(slug: string): { [key: string]: unknown; blockType: string } {
       switch (slug) {
-        case 'heroBlock':
-          return { blockType: 'heroBlock', headline: 'Test' }
         case 'accordionBlock':
           return { blockType: 'accordionBlock', items: [] }
         case 'contentBlock':
           return { blockType: 'contentBlock' }
         case 'faqBlock':
           return { blockType: 'faqBlock', items: [] }
-        case 'statsBlock':
-          return { blockType: 'statsBlock', items: [] }
         case 'footerBlock':
           return { blockType: 'footerBlock' }
+        case 'heroBlock':
+          return { blockType: 'heroBlock', headline: 'Test' }
         case 'reusableBlockRef':
-          return { blockType: 'reusableBlockRef', block: 'test-id' }
+          return { block: 'test-id', blockType: 'reusableBlockRef' }
+        case 'statsBlock':
+          return { blockType: 'statsBlock', items: [] }
         default:
           return { blockType: slug }
       }
@@ -3680,5 +3681,104 @@ describe('renderBlock', () => {
 
     // Verify we tested all expected blocks (not an empty registry)
     expect(registryJson.blocks.length).toBeGreaterThanOrEqual(7)
+  })
+})
+
+describe('Block Catalog Endpoint', () => {
+  test('returns all registered blocks', async () => {
+    const request = new Request('http://localhost:3000/api/blocks/catalog', {
+      method: 'GET',
+    })
+
+    const payloadRequest = await createPayloadRequest({ config, request })
+    const response = await blockCatalogHandler(payloadRequest)
+
+    expect(response.status).toBe(200)
+
+    const data = await response.json()
+    expect(data.blocks).toBeDefined()
+    expect(Array.isArray(data.blocks)).toBe(true)
+    expect(data.blocks.length).toBe(7)
+
+    // Verify all 7 expected block types are present
+    const slugs = data.blocks.map((b: { slug: string }) => b.slug).sort()
+    expect(slugs).toEqual([
+      'accordionBlock',
+      'contentBlock',
+      'faqBlock',
+      'footerBlock',
+      'heroBlock',
+      'reusableBlockRef',
+      'statsBlock',
+    ])
+  })
+
+  test('returns valid schema structure', async () => {
+    const request = new Request('http://localhost:3000/api/blocks/catalog', {
+      method: 'GET',
+    })
+
+    const payloadRequest = await createPayloadRequest({ config, request })
+    const response = await blockCatalogHandler(payloadRequest)
+
+    expect(response.status).toBe(200)
+
+    const data = await response.json()
+
+    // Verify top-level schema structure
+    expect(data.version).toBeDefined()
+    expect(data.generatedAt).toBeDefined()
+    expect(data.blocks).toBeDefined()
+
+    // Verify each block has required properties
+    for (const block of data.blocks) {
+      expect(block.slug).toBeDefined()
+      expect(typeof block.slug).toBe('string')
+      expect(block.label).toBeDefined()
+      expect(typeof block.label).toBe('string')
+      expect(block.allowedSections).toBeDefined()
+      expect(Array.isArray(block.allowedSections)).toBe(true)
+      expect(block.fields).toBeDefined()
+      expect(Array.isArray(block.fields)).toBe(true)
+    }
+  })
+
+  test('includes field metadata for heroBlock', async () => {
+    const request = new Request('http://localhost:3000/api/blocks/catalog', {
+      method: 'GET',
+    })
+
+    const payloadRequest = await createPayloadRequest({ config, request })
+    const response = await blockCatalogHandler(payloadRequest)
+
+    expect(response.status).toBe(200)
+
+    const data = await response.json()
+
+    // Find heroBlock
+    const heroBlock = data.blocks.find((b: { slug: string }) => b.slug === 'heroBlock')
+    expect(heroBlock).toBeDefined()
+
+    // Verify heroBlock has expected field metadata
+    expect(heroBlock.label).toBe('Hero Block')
+    expect(heroBlock.allowedSections).toEqual(['hero'])
+
+    // Verify headline field exists with correct metadata
+    const headlineField = heroBlock.fields.find((f: { name: string }) => f.name === 'headline')
+    expect(headlineField).toBeDefined()
+    expect(headlineField.type).toBe('text')
+    expect(headlineField.required).toBe(true)
+
+    // Verify CTA group field exists with nested fields
+    const ctaField = heroBlock.fields.find((f: { name: string }) => f.name === 'cta')
+    expect(ctaField).toBeDefined()
+    expect(ctaField.type).toBe('group')
+    expect(ctaField.nestedFields).toBeDefined()
+    expect(Array.isArray(ctaField.nestedFields)).toBe(true)
+
+    // Verify CTA nested fields
+    const ctaTextField = ctaField.nestedFields.find((f: { name: string }) => f.name === 'ctaText')
+    expect(ctaTextField).toBeDefined()
+    expect(ctaTextField.type).toBe('text')
   })
 })

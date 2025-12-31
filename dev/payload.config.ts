@@ -13,6 +13,7 @@ import { Leads } from './collections/Leads.js'
 import { Pages } from './collections/Pages.js'
 import { PageVariants } from './collections/PageVariants.js'
 import { ReusableBlocks } from './collections/ReusableBlocks.js'
+import { blockCatalogHandler } from './endpoints/blockCatalog.js'
 import { resolvedPageHandler } from './endpoints/resolvedPage.js'
 import { resolvedPageWithVariantHandler } from './endpoints/resolvedPageWithVariant.js'
 import { testEmailAdapter } from './helpers/testEmailAdapter.js'
@@ -72,6 +73,11 @@ const buildConfigWithMemoryDB = async () => {
     editor: lexicalEditor(),
     email: testEmailAdapter,
     endpoints: [
+      {
+        handler: blockCatalogHandler,
+        method: 'get',
+        path: '/blocks/catalog',
+      },
       {
         handler: resolvedPageHandler,
         method: 'get',
