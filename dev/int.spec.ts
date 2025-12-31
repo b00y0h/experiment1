@@ -8,6 +8,7 @@ import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js
 import { resolvedPageHandler } from './endpoints/resolvedPage.js'
 import { resolvedPageWithVariantHandler } from './endpoints/resolvedPageWithVariant.js'
 import { assignVariantByTraffic } from './utils/assignVariant.js'
+import { calculateExperimentStats } from './utils/experimentStats.js'
 import { getAssignedVariant } from './utils/getAssignedVariant.js'
 import { getResolvedPage } from './utils/getResolvedPage.js'
 import { getResolvedPageWithVariant } from './utils/getResolvedPageWithVariant.js'
@@ -3186,6 +3187,300 @@ describe('AnalyticsEvents collection', () => {
     for (const event of secondExpEvents) {
       const experimentRef = typeof event.experiment === 'object' ? event.experiment.id : event.experiment
       expect(experimentRef).toBe(secondExperiment.id)
+    }
+  })
+})
+
+describe('Experiment Stats calculation', () => {
+  test('calculateExperimentStats returns correct metrics per variant', async () => {
+    // Create a page for the experiment
+    const statsTestPage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'stats-test-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Stats Test Page',
+          },
+        ],
+        title: 'Stats Test Page',
+      },
+    })
+
+    // Create two variants
+    const statsVariantA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Stats Variant A',
+        page: statsTestPage.id,
+      },
+    })
+
+    const statsVariantB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Stats Variant B',
+        page: statsTestPage.id,
+      },
+    })
+
+    // Create a running experiment
+    const statsExperiment = await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Stats Test Experiment',
+        page: statsTestPage.id,
+        status: 'running',
+        variants: [
+          { trafficPercent: 50, variant: statsVariantA.id },
+          { trafficPercent: 50, variant: statsVariantB.id },
+        ],
+      },
+    })
+
+    // Create analytics events for variant A: 100 impressions, 10 conversions (10% rate)
+    for (let i = 0; i < 100; i++) {
+      await payload.create({
+        collection: 'analytics-events',
+        data: {
+          eventType: 'impression',
+          experiment: statsExperiment.id,
+          variant: statsVariantA.id,
+          visitorId: `stats-visitor-a-${i}`,
+        },
+      })
+    }
+    for (let i = 0; i < 10; i++) {
+      await payload.create({
+        collection: 'analytics-events',
+        data: {
+          eventType: 'conversion',
+          experiment: statsExperiment.id,
+          variant: statsVariantA.id,
+          visitorId: `stats-visitor-a-${i}`,
+        },
+      })
+    }
+
+    // Create analytics events for variant B: 80 impressions, 12 conversions (15% rate)
+    for (let i = 0; i < 80; i++) {
+      await payload.create({
+        collection: 'analytics-events',
+        data: {
+          eventType: 'impression',
+          experiment: statsExperiment.id,
+          variant: statsVariantB.id,
+          visitorId: `stats-visitor-b-${i}`,
+        },
+      })
+    }
+    for (let i = 0; i < 12; i++) {
+      await payload.create({
+        collection: 'analytics-events',
+        data: {
+          eventType: 'conversion',
+          experiment: statsExperiment.id,
+          variant: statsVariantB.id,
+          visitorId: `stats-visitor-b-${i}`,
+        },
+      })
+    }
+
+    // Calculate stats
+    const allStats = await calculateExperimentStats(payload)
+
+    // Find the stats for our test experiment
+    const experimentStats = allStats.find((s) => s.experimentId === String(statsExperiment.id))
+    expect(experimentStats).toBeDefined()
+
+    if (experimentStats) {
+      expect(experimentStats.experimentName).toBe('Stats Test Experiment')
+      expect(experimentStats.status).toBe('running')
+      expect(experimentStats.variants).toHaveLength(2)
+
+      // Find variant A stats
+      const variantAStats = experimentStats.variants.find(
+        (v) => v.variantId === String(statsVariantA.id),
+      )
+      expect(variantAStats).toBeDefined()
+      if (variantAStats) {
+        expect(variantAStats.impressions).toBe(100)
+        expect(variantAStats.conversions).toBe(10)
+        expect(variantAStats.conversionRate).toBeCloseTo(10, 1)
+        expect(variantAStats.variantName).toBe('Stats Variant A')
+      }
+
+      // Find variant B stats
+      const variantBStats = experimentStats.variants.find(
+        (v) => v.variantId === String(statsVariantB.id),
+      )
+      expect(variantBStats).toBeDefined()
+      if (variantBStats) {
+        expect(variantBStats.impressions).toBe(80)
+        expect(variantBStats.conversions).toBe(12)
+        expect(variantBStats.conversionRate).toBeCloseTo(15, 1)
+        expect(variantBStats.variantName).toBe('Stats Variant B')
+      }
+
+      // Variant B should be winning (15% > 10%)
+      expect(experimentStats.winningVariantId).toBe(String(statsVariantB.id))
+    }
+  })
+
+  test('calculateExperimentStats excludes completed and draft experiments', async () => {
+    // Create a page
+    const excludeTestPage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'exclude-test-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Exclude Test Page',
+          },
+        ],
+        title: 'Exclude Test Page',
+      },
+    })
+
+    // Create variants
+    const excludeVariantA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Exclude Variant A',
+        page: excludeTestPage.id,
+      },
+    })
+
+    const excludeVariantB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Exclude Variant B',
+        page: excludeTestPage.id,
+      },
+    })
+
+    // Create a completed experiment (should be excluded)
+    const completedExperiment = await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Completed Experiment',
+        page: excludeTestPage.id,
+        status: 'completed',
+        variants: [
+          { trafficPercent: 50, variant: excludeVariantA.id },
+          { trafficPercent: 50, variant: excludeVariantB.id },
+        ],
+      },
+    })
+
+    // Create a draft experiment (should be excluded)
+    const draftExperiment = await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Draft Experiment',
+        page: excludeTestPage.id,
+        status: 'draft',
+        variants: [
+          { trafficPercent: 50, variant: excludeVariantA.id },
+          { trafficPercent: 50, variant: excludeVariantB.id },
+        ],
+      },
+    })
+
+    // Calculate stats
+    const allStats = await calculateExperimentStats(payload)
+
+    // Verify completed and draft experiments are not included
+    const completedStats = allStats.find((s) => s.experimentId === String(completedExperiment.id))
+    expect(completedStats).toBeUndefined()
+
+    const draftStats = allStats.find((s) => s.experimentId === String(draftExperiment.id))
+    expect(draftStats).toBeUndefined()
+  })
+
+  test('calculateExperimentStats handles zero impressions gracefully', async () => {
+    // Create a page
+    const zeroTestPage = await payload.create({
+      collection: 'pages',
+      data: {
+        slug: 'zero-impressions-test-page',
+        hero: [
+          {
+            blockType: 'heroBlock',
+            cta: {
+              ctaLink: 'https://example.com',
+              ctaText: 'Test CTA',
+            },
+            headline: 'Zero Impressions Test',
+          },
+        ],
+        title: 'Zero Impressions Test Page',
+      },
+    })
+
+    // Create variants
+    const zeroVariantA = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Zero Variant A',
+        page: zeroTestPage.id,
+      },
+    })
+
+    const zeroVariantB = await payload.create({
+      collection: 'page-variants',
+      data: {
+        name: 'Zero Variant B',
+        page: zeroTestPage.id,
+      },
+    })
+
+    // Create a paused experiment with no events
+    const zeroImpressionExperiment = await payload.create({
+      collection: 'experiments',
+      data: {
+        name: 'Zero Impression Experiment',
+        page: zeroTestPage.id,
+        status: 'paused',
+        variants: [
+          { trafficPercent: 50, variant: zeroVariantA.id },
+          { trafficPercent: 50, variant: zeroVariantB.id },
+        ],
+      },
+    })
+
+    // Calculate stats (no events created)
+    const allStats = await calculateExperimentStats(payload)
+
+    // Find the stats for our test experiment
+    const experimentStats = allStats.find(
+      (s) => s.experimentId === String(zeroImpressionExperiment.id),
+    )
+    expect(experimentStats).toBeDefined()
+
+    if (experimentStats) {
+      expect(experimentStats.status).toBe('paused')
+      expect(experimentStats.variants).toHaveLength(2)
+
+      // All variants should have zero metrics
+      for (const variant of experimentStats.variants) {
+        expect(variant.impressions).toBe(0)
+        expect(variant.conversions).toBe(0)
+        expect(variant.conversionRate).toBe(0)
+      }
+
+      // No winning variant when no conversions
+      expect(experimentStats.winningVariantId).toBeUndefined()
     }
   })
 })

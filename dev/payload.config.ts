@@ -39,6 +39,9 @@ const buildConfigWithMemoryDB = async () => {
 
   return buildConfig({
     admin: {
+      components: {
+        beforeDashboard: ['./components/ExperimentStats.js#ExperimentStats'],
+      },
       importMap: {
         baseDir: path.resolve(dirname),
       },

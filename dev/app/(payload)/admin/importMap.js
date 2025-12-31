@@ -19,6 +19,7 @@ import { LinkFeatureClient as LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864
 import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { ExperimentStats as ExperimentStats_61db8644aad8353b711a47eeb04cee71 } from '../../../components/ExperimentStats.js'
 import { BeforeDashboardClient as BeforeDashboardClient_157856ccf4eb99f02f062deefc9ceeb0 } from 'experiment-1/client'
 import { BeforeDashboardServer as BeforeDashboardServer_0f6bbe99881f4194ababa7f7a670dd9d } from 'experiment-1/rsc'
 
@@ -44,6 +45,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient": BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "./components/ExperimentStats.js#ExperimentStats": ExperimentStats_61db8644aad8353b711a47eeb04cee71,
   "experiment-1/client#BeforeDashboardClient": BeforeDashboardClient_157856ccf4eb99f02f062deefc9ceeb0,
   "experiment-1/rsc#BeforeDashboardServer": BeforeDashboardServer_0f6bbe99881f4194ababa7f7a670dd9d
 }

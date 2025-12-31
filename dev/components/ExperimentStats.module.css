@@ -1,0 +1,91 @@
+.wrapper {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.emptyMessage {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.experimentGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.experimentCard {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.experimentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.experimentName {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusRunning {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusPaused {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.metricsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.metricsTable th,
+.metricsTable td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.metricsTable th {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.metricsTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.winningRow {
+  background: #f0fdf4;
+}
+
+.winningIndicator {
+  color: #059669;
+  font-weight: 500;
+  font-size: 12px;
+}

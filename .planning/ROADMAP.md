@@ -92,7 +92,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 14-01: TBD
+- [x] 14-01: ExperimentStats component + calculateExperimentStats utility
 
 ## Progress
 
@@ -114,4 +114,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 11. Visitor Assignment | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 12. Lead Capture | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 13. Analytics Events | v3.0 | 1/1 | Complete | 2025-12-30 |
-| 14. Experiment Dashboard | v3.0 | 0/? | Not started | - |
+| 14. Experiment Dashboard | v3.0 | 1/1 | Complete | 2025-12-31 |
