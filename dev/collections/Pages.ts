@@ -1,21 +1,17 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { nanoid } from 'nanoid'
 import { ValidationError } from 'payload'
 
-import { createBlockSettings } from '../fields/blockSettings'
-import { ctaValidator, maxLengthValidator, urlValidator } from '../validators/fieldValidators'
-
-/**
- * Restricted Lexical editor that removes upload and relationship features.
- * Keeps: bold, italic, underline, strikethrough, links, lists, headings, paragraphs
- * Removes: upload (embedded media), relationship (embedded documents)
- */
-const restrictedLexicalEditor = lexicalEditor({
-  features: ({ defaultFeatures }) =>
-    defaultFeatures.filter((feature) => !['relationship', 'upload'].includes(feature.key)),
-})
+import {
+  accordionBlock,
+  contentBlock,
+  faqBlock,
+  footerBlock,
+  heroBlock,
+  reusableBlockRef,
+  statsBlock,
+} from '../blocks'
 
 type BlockWithSettings = {
   [key: string]: unknown
@@ -46,7 +42,9 @@ const ensureBlockIds: CollectionBeforeChangeHook = ({ data, operation }) => {
   }
 
   const processBlocks = (blocks: BlockWithSettings[] | undefined): void => {
-    if (!Array.isArray(blocks)) {return}
+    if (!Array.isArray(blocks)) {
+      return
+    }
 
     for (const block of blocks) {
       if (!block.settings) {
@@ -137,172 +135,18 @@ export const Pages: CollectionConfig = {
     {
       name: 'hero',
       type: 'blocks',
-      blocks: [
-        {
-          slug: 'heroBlock',
-          fields: [
-            {
-              name: 'headline',
-              type: 'text',
-              maxLength: 100,
-              required: true,
-              validate: maxLengthValidator(100),
-            },
-            {
-              name: 'subheadline',
-              type: 'textarea',
-            },
-            {
-              name: 'cta',
-              type: 'group',
-              admin: {
-                condition: () => true,
-              },
-              fields: [
-                {
-                  name: 'ctaText',
-                  type: 'text',
-                  label: 'Button Label',
-                  maxLength: 50,
-                },
-                {
-                  name: 'ctaLink',
-                  type: 'text',
-                  label: 'Button URL',
-                  validate: urlValidator,
-                },
-              ],
-              label: 'Call to Action',
-              validate: ctaValidator,
-            },
-            {
-              name: 'media',
-              type: 'upload',
-              relationTo: 'media',
-            },
-            createBlockSettings(),
-          ],
-        },
-      ],
+      blocks: [heroBlock()],
       maxRows: 1,
     },
     {
       name: 'content',
       type: 'blocks',
-      blocks: [
-        {
-          slug: 'contentBlock',
-          fields: [
-            {
-              name: 'body',
-              type: 'richText',
-              editor: restrictedLexicalEditor,
-            },
-            createBlockSettings(),
-          ],
-        },
-        {
-          slug: 'accordionBlock',
-          fields: [
-            {
-              name: 'items',
-              type: 'array',
-              fields: [
-                {
-                  name: 'title',
-                  type: 'text',
-                  required: true,
-                },
-                {
-                  name: 'content',
-                  type: 'richText',
-                  editor: restrictedLexicalEditor,
-                },
-              ],
-              maxRows: 20,
-            },
-            createBlockSettings(),
-          ],
-        },
-        {
-          slug: 'reusableBlockRef',
-          fields: [
-            {
-              name: 'block',
-              type: 'relationship',
-              relationTo: 'reusable-blocks',
-              required: true,
-            },
-            createBlockSettings(),
-          ],
-        },
-        {
-          slug: 'faqBlock',
-          fields: [
-            {
-              name: 'items',
-              type: 'array',
-              fields: [
-                {
-                  name: 'question',
-                  type: 'text',
-                  required: true,
-                },
-                {
-                  name: 'answer',
-                  type: 'richText',
-                  editor: restrictedLexicalEditor,
-                },
-              ],
-              maxRows: 30,
-            },
-            createBlockSettings(),
-          ],
-        },
-        {
-          slug: 'statsBlock',
-          fields: [
-            {
-              name: 'items',
-              type: 'array',
-              fields: [
-                {
-                  name: 'value',
-                  type: 'text',
-                  required: true,
-                },
-                {
-                  name: 'label',
-                  type: 'text',
-                  required: true,
-                },
-                {
-                  name: 'icon',
-                  type: 'text',
-                },
-              ],
-              maxRows: 12,
-            },
-            createBlockSettings(),
-          ],
-        },
-      ],
+      blocks: [contentBlock(), accordionBlock(), reusableBlockRef(), faqBlock(), statsBlock()],
     },
     {
       name: 'footer',
       type: 'blocks',
-      blocks: [
-        {
-          slug: 'footerBlock',
-          fields: [
-            {
-              name: 'text',
-              type: 'text',
-            },
-            createBlockSettings(),
-          ],
-        },
-      ],
+      blocks: [footerBlock()],
     },
   ],
   hooks: {

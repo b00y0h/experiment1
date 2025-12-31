@@ -1,19 +1,8 @@
 import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { nanoid } from 'nanoid'
 
-import { createBlockSettings } from '../fields/blockSettings'
-
-/**
- * Restricted Lexical editor that removes upload and relationship features.
- * Keeps: bold, italic, underline, strikethrough, links, lists, headings, paragraphs
- * Removes: upload (embedded media), relationship (embedded documents)
- */
-const restrictedLexicalEditor = lexicalEditor({
-  features: ({ defaultFeatures }) =>
-    defaultFeatures.filter((feature) => !['relationship', 'upload'].includes(feature.key)),
-})
+import { reusableBlockTypes } from '../blocks'
 
 type BlockWithSettings = {
   [key: string]: unknown
@@ -80,99 +69,7 @@ export const ReusableBlocks: CollectionConfig = {
     {
       name: 'block',
       type: 'blocks',
-      blocks: [
-        {
-          slug: 'accordionBlock',
-          fields: [
-            {
-              name: 'items',
-              type: 'array',
-              fields: [
-                {
-                  name: 'title',
-                  type: 'text',
-                  required: true,
-                },
-                {
-                  name: 'content',
-                  type: 'richText',
-                  editor: restrictedLexicalEditor,
-                },
-              ],
-            },
-            createBlockSettings(),
-          ],
-        },
-        {
-          slug: 'contentBlock',
-          fields: [
-            {
-              name: 'body',
-              type: 'richText',
-              editor: restrictedLexicalEditor,
-            },
-            createBlockSettings(),
-          ],
-        },
-        {
-          slug: 'footerBlock',
-          fields: [
-            {
-              name: 'text',
-              type: 'text',
-            },
-            createBlockSettings(),
-          ],
-        },
-        {
-          slug: 'faqBlock',
-          fields: [
-            {
-              name: 'items',
-              type: 'array',
-              fields: [
-                {
-                  name: 'question',
-                  type: 'text',
-                  required: true,
-                },
-                {
-                  name: 'answer',
-                  type: 'richText',
-                  editor: restrictedLexicalEditor,
-                },
-              ],
-            },
-            createBlockSettings(),
-          ],
-        },
-        {
-          slug: 'statsBlock',
-          fields: [
-            {
-              name: 'items',
-              type: 'array',
-              fields: [
-                {
-                  name: 'value',
-                  type: 'text',
-                  required: true,
-                },
-                {
-                  name: 'label',
-                  type: 'text',
-                  required: true,
-                },
-                {
-                  name: 'icon',
-                  type: 'text',
-                },
-              ],
-            },
-            createBlockSettings(),
-          ],
-        },
-      ],
+      blocks: reusableBlockTypes.map((factory) => factory()),
       maxRows: 1,
     },
   ],

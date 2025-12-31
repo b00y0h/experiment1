@@ -72,7 +72,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 14. Experiment Dashboard | v3.0 | 1/1 | Complete | 2025-12-30 |
 
 | 15. Repo Normalization | v4.0 | 1/1 | Complete | 2025-12-31 |
-| 16. Block Registry | v4.0 | 0/2 | Not started | - |
+| 16. Block Registry | v4.0 | 1/2 | In progress | - |
 | 17. Frontend Renderer Mapping | v4.0 | 0/1 | Not started | - |
 | 18. Drift-Proof Type Sync | v4.0 | 0/2 | Not started | - |
 | 19. AI-Ready Catalog | v4.0 | 0/2 | Not started | - |
@@ -99,7 +99,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 16-01: Create canonical Block Registry in-code (Payload-first)
+- [x] 16-01: Create canonical Block Registry in-code (Payload-first)
 - [ ] 16-02: Generate machine-readable registry artifact
 
 ### Phase 17: Frontend Renderer Mapping
