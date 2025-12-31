@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A complete A/B testing content model for Payload CMS. Composable landing pages with three sections (Hero, Content, Footer) and four block types (Hero, Accordion, FAQ, Stats). Full experimentation infrastructure: Experiments with traffic allocation, visitor assignment via hash bucketing, Leads collection with attribution, AnalyticsEvents for impressions/conversions, and an admin dashboard with experiment statistics.
+A complete A/B testing content model for Payload CMS with drift-proof frontend integration. Composable landing pages with three sections (Hero, Content, Footer) and seven block types managed via centralized Block Registry. Full experimentation infrastructure: Experiments with traffic allocation, visitor assignment via hash bucketing, Leads collection with attribution, AnalyticsEvents for impressions/conversions, admin dashboard with statistics, and AI-ready block catalog with guardrails for automated content generation.
 
 ## Core Value
 
@@ -39,6 +39,13 @@ Clean, typed content schema that balances editor flexibility with content consis
 - ✓ Leads collection with experiment/variant/visitor attribution — v3.0
 - ✓ AnalyticsEvents collection with impression/conversion/click/custom types — v3.0
 - ✓ ExperimentStats RSC dashboard component with per-variant metrics — v3.0
+- ✓ Block Registry with factory functions for all 7 block types — v4.0
+- ✓ Machine-readable registry artifact (block-registry.json) — v4.0
+- ✓ renderBlock() dispatch with exhaustive TypeScript checking — v4.0
+- ✓ Compile-time contract between registry and Page types — v4.0
+- ✓ CI gates (check:registry, check:sync) for drift detection — v4.0
+- ✓ Block catalog REST endpoint (/api/blocks/catalog) — v4.0
+- ✓ allowedBlockTypes guardrails for AI experiments — v4.0
 
 ### Active
 
@@ -53,23 +60,26 @@ Clean, typed content schema that balances editor flexibility with content consis
 
 ## Context
 
-Shipped v3.0 with 7,726 LOC TypeScript in the dev app.
+Shipped v4.0 with 11,054 LOC TypeScript in the dev app.
 Tech stack: Payload CMS 3.37.0, Next.js, MongoDB Memory Server for tests.
 Content model follows Contentful's modular, composable approach.
 
-The `/src` folder contains publishable plugin code, while `/dev` contains the complete Payload + Next.js application where the content model was developed.
+The `/dev` folder is the primary Payload CMS application. The `/src` folder contains the original plugin template (pending extraction).
 
 **Current capabilities:**
-- 4 block types (Hero, Accordion, FAQ, Stats) across 3 sections
+- 7 block types via centralized Block Registry (Hero, Content, Accordion, FAQ, Stats, Footer, ReusableBlockRef)
 - Stable blockIds on all blocks for analytics tracking
 - Validation at field and page level
-- Rendering contract with API endpoints
+- Rendering contract with API endpoints and renderBlock() dispatch
+- Drift-proof type sync with compile-time assertions
+- CI gates (check:registry, check:sync) for schema drift detection
 - PageVariants for section-level overrides
-- Experiments with traffic allocation and variant assignment
+- Experiments with traffic allocation, variant assignment, and AI guardrails
 - Leads and AnalyticsEvents for conversion tracking
 - Admin dashboard with experiment statistics
+- AI-ready block catalog endpoint (/api/blocks/catalog)
 
-**Test coverage:** 76 integration tests passing
+**Test coverage:** 92+ integration tests passing
 
 ## Constraints
 
@@ -92,6 +102,11 @@ The `/src` folder contains publishable plugin code, while `/dev` contains the co
 | Simple string hash for bucketing | Sufficient for A/B traffic distribution | ✓ Good — lightweight, deterministic |
 | Pure visitor ID utility | Cookie setting is caller's responsibility | ✓ Good — flexible across API/RSC |
 | Traffic validation on running only | Allows incomplete draft experiments | ✓ Good — better editor experience |
+| Block factory functions | Allows fresh createBlockSettings() per-use | ✓ Good — proper block ID generation |
+| Registry-derived types | BlockTypeSlug from blockRegistry keys | ✓ Good — single source of truth |
+| Exhaustive switch for rendering | TypeScript catches missing cases | ✓ Good — compile-time safety |
+| JSON registry artifact | Machine-readable for AI/tooling | ✓ Good — enables automation |
+| Empty allowedBlockTypes = all | Simplifies unrestricted experiments | ✓ Good — intuitive default |
 
 ---
-*Last updated: 2025-12-30 after v3.0 milestone*
+*Last updated: 2025-12-31 after v4.0 milestone*

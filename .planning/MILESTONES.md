@@ -1,5 +1,35 @@
 # Project Milestones: Landing Page Content Model
 
+## v4.0 Block ↔ Component Sync + AI Catalog (Shipped: 2025-12-31)
+
+**Delivered:** Frontend renderer mapping with drift-proof type sync, plus AI-ready block catalog with experiment guardrails.
+
+**Phases completed:** 15-19 (8 plans total)
+
+**Key accomplishments:**
+
+- Promoted /dev to primary Payload CMS app boundary with clear documentation
+- Created centralized Block Registry with factory functions for all 7 block types
+- Added machine-readable registry artifact (block-registry.json) with pnpm generate:registry
+- Implemented renderBlock() dispatch with exhaustive TypeScript checking
+- Enforced compile-time contract between registry and Page types (drift-proof sync)
+- Added CI gates (check:registry, check:sync) to catch registry/schema drift
+- Created /api/blocks/catalog REST endpoint for AI/tooling block discovery
+- Added allowedBlockTypes guardrails for AI experiment block restrictions
+
+**Stats:**
+
+- 34 files created/modified
+- 11,054 lines of TypeScript (2,892 net new)
+- 5 phases, 8 plans
+- 2 days from v3.0 to v4.0
+
+**Git range:** `feat(15-01)` → `feat(19-02)`
+
+**What's next:** Plugin extraction from dev app
+
+---
+
 ## v3.0 Live Experiments + Lead Tracking (Shipped: 2025-12-30)
 
 **Delivered:** Complete A/B testing infrastructure with experiments, visitor assignment, lead capture, analytics events, and admin dashboard.
