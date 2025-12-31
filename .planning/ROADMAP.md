@@ -13,6 +13,7 @@ None
 - ✅ [v1.0 MVP](milestones/v1.0-ROADMAP.md) (Phases 1-4) — SHIPPED 2025-12-30
 - ✅ [v2.0 Page Assembly + Variant Ready](milestones/v2.0-ROADMAP.md) (Phases 5-9) — SHIPPED 2025-12-30
 - ✅ [v3.0 Live Experiments + Lead Tracking](milestones/v3.0-ROADMAP.md) (Phases 10-14) — SHIPPED 2025-12-30
+- 🚧 **v4.0 Block ↔ Component Sync + AI Catalog** — Phases 15-19 (in progress)
 
 ## Completed Phases
 
@@ -70,4 +71,66 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Analytics Events | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 14. Experiment Dashboard | v3.0 | 1/1 | Complete | 2025-12-30 |
 
-**All milestones complete.** Total: 14 phases, 18 plans across 3 milestones.
+| 15. Repo Normalization | v4.0 | 0/1 | Not started | - |
+| 16. Block Registry | v4.0 | 0/2 | Not started | - |
+| 17. Frontend Renderer Mapping | v4.0 | 0/1 | Not started | - |
+| 18. Drift-Proof Type Sync | v4.0 | 0/2 | Not started | - |
+| 19. AI-Ready Catalog | v4.0 | 0/2 | Not started | - |
+
+## 🚧 v4.0 Block ↔ Component Sync + AI Catalog (In Progress)
+
+**Milestone Goal:** Frontend renderer mapping that stays in lockstep with Payload block definitions, plus an auto-updating AI catalog of allowed blocks for experiments.
+
+### Phase 15: Repo Normalization
+
+**Goal**: Make the Payload CMS app the "real" project (stop treating /dev like a temporary shell)
+**Depends on**: v3.0 complete
+**Research**: Unlikely (internal refactoring)
+**Plans**: 1 plan
+
+Plans:
+- [ ] 15-01: Promote /dev to primary app boundary
+
+### Phase 16: Block Registry
+
+**Goal**: Create a single, canonical "Block Registry" that describes all blocks and can be consumed by the front end + AI
+**Depends on**: Phase 15
+**Research**: Unlikely (internal patterns)
+**Plans**: 2 plans
+
+Plans:
+- [ ] 16-01: Create canonical Block Registry in-code (Payload-first)
+- [ ] 16-02: Generate machine-readable registry artifact
+
+### Phase 17: Frontend Renderer Mapping
+
+**Goal**: Map blockType -> component with safe fallbacks and hard checks
+**Depends on**: Phase 16
+**Research**: Unlikely (React patterns established)
+**Plans**: 1 plan
+
+Plans:
+- [ ] 17-01: Implement renderBlock() dispatch + unknown-block handling
+
+### Phase 18: Drift-Proof Type Sync
+
+**Goal**: Make "CMS changed but FE didn't" fail at build/CI time instead of breaking in production
+**Depends on**: Phase 17
+**Research**: Unlikely (TypeScript patterns)
+**Plans**: 2 plans
+
+Plans:
+- [ ] 18-01: Enforce compile-time contract between registry + components
+- [ ] 18-02: Add CI gates + integration tests for registry/rendering coverage
+
+### Phase 19: AI-Ready Catalog
+
+**Goal**: AI always knows what blocks exist right now and what it's allowed to use per client/campaign
+**Depends on**: Phase 18
+**Research**: Likely (AI integration patterns)
+**Research topics**: Prompt injection best practices, catalog schema design for LLMs
+**Plans**: 2 plans
+
+Plans:
+- [ ] 19-01: Publish "available blocks" catalog endpoint for AI + tooling
+- [ ] 19-02: Add allowlists/guardrails for AI experiments

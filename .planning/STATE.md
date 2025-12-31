@@ -5,15 +5,16 @@
 See: .planning/PROJECT.md (updated 2025-12-30)
 
 **Core value:** Clean, typed content schema that balances editor flexibility with content consistency and developer ergonomics.
-**Current focus:** All milestones complete — ready for plugin extraction
+**Current focus:** v4.0 Block ↔ Component Sync + AI Catalog
 
 ## Current Position
 
-Phase: 14 of 14 (all complete)
-Status: v3.0 shipped
-Last activity: 2025-12-30 — v3.0 milestone archived
+Phase: 15 of 19 (Repo Normalization)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2025-12-30 — Milestone v4.0 created
 
-Progress: ██████████ 100% (3 milestones shipped)
+Progress: ░░░░░░░░░░ 0% (v4.0: 0/8 plans)
 
 ## Performance Metrics
 
@@ -65,9 +66,10 @@ None.
 - v1.0 MVP: Shipped 2025-12-30 (Phases 1-4)
 - v2.0 Page Assembly + Variant Ready: Shipped 2025-12-30 (Phases 5-9)
 - v3.0 Live Experiments + Lead Tracking: Shipped 2025-12-30 (Phases 10-14)
+- v4.0 Block ↔ Component Sync + AI Catalog: Created 2025-12-30 (Phases 15-19)
 
 ## Session Continuity
 
 Last session: 2025-12-30
-Stopped at: v3.0 milestone archived
+Stopped at: Milestone v4.0 initialization
 Resume file: None
