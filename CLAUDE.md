@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Payload CMS plugin development repository. The `/src` folder contains the plugin source code that gets published to npm, while the `/dev` folder contains a complete Payload application used to develop and test the plugin in isolation.
+This is a Payload CMS application for composable landing pages with A/B testing capabilities. The `/dev` folder IS the main Payload CMS application containing all content model code (collections, utils, validators, endpoints, components).
+
+The `/src` folder contains the original plugin template code - this is legacy/placeholder code pending formal plugin extraction. The actual implementation lives in `/dev`.
 
 ## Commands
 
@@ -37,14 +39,19 @@ pnpm generate:importmap
 
 ### Directory Structure
 
-- **`/src`** - Plugin source code (published to npm via `dist/`)
-- **`/dev`** - Isolated Payload application for plugin development and testing
+- **`/dev`** - Primary Payload CMS application (the actual implementation)
+- **`/src`** - Original plugin template (legacy, pending extraction)
 
-### The Dev Application (`/dev`)
+### The Dev Application (`/dev`) - Primary App
 
-The dev folder is a minimal Payload + Next.js application created specifically for plugin development:
+The `/dev` folder is the main Payload CMS application containing all content model code:
 
-- **`payload.config.ts`** - Imports and configures the plugin from `experiment-1` (self-referencing package)
+- **`collections/`** - Pages, PageVariants, Experiments, Leads, AnalyticsEvents, ReusableBlocks
+- **`utils/`** - Block resolution, variant assignment, visitor ID, experiment stats
+- **`validators/`** - Field and page-level validation
+- **`endpoints/`** - Resolved page API endpoints
+- **`components/`** - Admin dashboard components (ExperimentStats RSC)
+- **`payload.config.ts`** - Main Payload configuration
 - **`seed.ts`** - Seeds initial data (dev user) on app initialization
 - **`int.spec.ts`** - Integration tests using Vitest
 - **`e2e.spec.ts`** - End-to-end tests using Playwright
@@ -52,17 +59,19 @@ The dev folder is a minimal Payload + Next.js application created specifically f
 
 The dev app uses MongoDB Memory Server in test mode (`NODE_ENV=test`), allowing tests to run without external database dependencies.
 
-### Plugin Entry Points
+### Plugin Entry Points (`/src`) - Template/Placeholder
 
-The plugin exposes three entry points via package.json exports:
+The `/src` directory exposes three entry points via package.json exports. These are the original plugin template structure - placeholders, not the content model:
 
-1. **Main (`experiment-1`)** - Plugin function that modifies Payload config (`src/index.ts`)
+1. **Main (`experiment-1`)** - Plugin function entry point (`src/index.ts`)
 2. **Client (`experiment-1/client`)** - Client components with `'use client'` directive (`src/exports/client.ts`)
 3. **RSC (`experiment-1/rsc`)** - React Server Components (`src/exports/rsc.ts`)
 
+When plugin extraction happens, code from `/dev` will be moved here following the Payload plugin architecture pattern.
+
 ## Payload Plugin Architecture
 
-Plugins are config transformers—functions that receive the Payload config and return a modified version.
+Plugins are config transformers - functions that receive the Payload config and return a modified version.
 
 ### Plugin Function Signature
 

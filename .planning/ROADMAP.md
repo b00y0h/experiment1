@@ -71,7 +71,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 13. Analytics Events | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 14. Experiment Dashboard | v3.0 | 1/1 | Complete | 2025-12-30 |
 
-| 15. Repo Normalization | v4.0 | 0/1 | Not started | - |
+| 15. Repo Normalization | v4.0 | 1/1 | Complete | 2025-12-31 |
 | 16. Block Registry | v4.0 | 0/2 | Not started | - |
 | 17. Frontend Renderer Mapping | v4.0 | 0/1 | Not started | - |
 | 18. Drift-Proof Type Sync | v4.0 | 0/2 | Not started | - |
@@ -89,7 +89,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 **Plans**: 1 plan
 
 Plans:
-- [ ] 15-01: Promote /dev to primary app boundary
+- [x] 15-01: Promote /dev to primary app boundary
 
 ### Phase 16: Block Registry
 
