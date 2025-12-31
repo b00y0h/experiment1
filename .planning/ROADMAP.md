@@ -74,7 +74,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 15. Repo Normalization | v4.0 | 1/1 | Complete | 2025-12-31 |
 | 16. Block Registry | v4.0 | 2/2 | Complete | 2025-12-31 |
 | 17. Frontend Renderer Mapping | v4.0 | 1/1 | Complete | 2025-12-31 |
-| 18. Drift-Proof Type Sync | v4.0 | 1/2 | In progress | - |
+| 18. Drift-Proof Type Sync | v4.0 | 2/2 | Complete | 2025-12-31 |
 | 19. AI-Ready Catalog | v4.0 | 0/2 | Not started | - |
 
 ## 🚧 v4.0 Block ↔ Component Sync + AI Catalog (In Progress)
@@ -121,7 +121,7 @@ Plans:
 
 Plans:
 - [x] 18-01: Enforce compile-time contract between registry + components
-- [ ] 18-02: Add CI gates + integration tests for registry/rendering coverage
+- [x] 18-02: Add CI gates + integration tests for registry/rendering coverage
 
 ### Phase 19: AI-Ready Catalog
 

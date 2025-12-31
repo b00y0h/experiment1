@@ -3636,4 +3636,49 @@ describe('renderBlock', () => {
     // Registry and Page schema should have identical block type lists
     expect(registrySlugs).toEqual(payloadSlugs)
   })
+
+  test('100% rendering coverage: all registry blocks render successfully', async () => {
+    // Load registry JSON (source of truth for deployed blocks)
+    const { readFileSync } = await import('fs')
+    const registryJson = JSON.parse(
+      readFileSync('dev/block-registry.json', 'utf-8')
+    ) as { blocks: Array<{ slug: string }> }
+
+    // Helper to create minimal valid block for each type
+    function createMinimalBlock(slug: string): { blockType: string; [key: string]: unknown } {
+      switch (slug) {
+        case 'heroBlock':
+          return { blockType: 'heroBlock', headline: 'Test' }
+        case 'accordionBlock':
+          return { blockType: 'accordionBlock', items: [] }
+        case 'contentBlock':
+          return { blockType: 'contentBlock' }
+        case 'faqBlock':
+          return { blockType: 'faqBlock', items: [] }
+        case 'statsBlock':
+          return { blockType: 'statsBlock', items: [] }
+        case 'footerBlock':
+          return { blockType: 'footerBlock' }
+        case 'reusableBlockRef':
+          return { blockType: 'reusableBlockRef', block: 'test-id' }
+        default:
+          return { blockType: slug }
+      }
+    }
+
+    // Verify every block in registry.json renders without throwing
+    for (const blockDef of registryJson.blocks) {
+      const testBlock = createMinimalBlock(blockDef.slug)
+
+      // Verify it renders without throwing
+      expect(() => renderBlockSafe(testBlock)).not.toThrow()
+
+      // Verify we get a valid element
+      const result = renderBlockSafe(testBlock)
+      expect(isValidElement(result)).toBe(true)
+    }
+
+    // Verify we tested all expected blocks (not an empty registry)
+    expect(registryJson.blocks.length).toBeGreaterThanOrEqual(7)
+  })
 })

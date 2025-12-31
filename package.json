@@ -38,6 +38,8 @@
     "dev:payload": "cross-env PAYLOAD_CONFIG_PATH=./dev/payload.config.ts payload",
     "generate:importmap": "pnpm dev:generate-importmap",
     "generate:registry": "tsx dev/blocks/generate.ts",
+    "check:registry": "tsx dev/blocks/check-registry.ts",
+    "check:sync": "pnpm check:registry && pnpm generate:types",
     "generate:types": "pnpm dev:generate-types",
     "lint": "eslint ./src ./dev",
     "lint:fix": "eslint ./src ./dev --fix",
