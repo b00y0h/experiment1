@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A structured content model for Payload CMS that enables composable landing pages with variant support. Pages have three defined sections (Hero, Content, Footer) with block types including Hero, Accordion, FAQ, and Stats. Blocks can be defined inline or referenced from a shared ReusableBlocks library. All blocks have stable blockIds for analytics tracking. Pages include validation guardrails (conversion element requirement) and can be resolved to deterministic JSON via API endpoints. PageVariants enable A/B testing with section-level overrides.
+A complete A/B testing content model for Payload CMS. Composable landing pages with three sections (Hero, Content, Footer) and four block types (Hero, Accordion, FAQ, Stats). Full experimentation infrastructure: Experiments with traffic allocation, visitor assignment via hash bucketing, Leads collection with attribution, AnalyticsEvents for impressions/conversions, and an admin dashboard with experiment statistics.
 
 ## Core Value
 
@@ -34,12 +34,15 @@ Clean, typed content schema that balances editor flexibility with content consis
 - ✓ getResolvedPage Local API helper — v2.0
 - ✓ PageVariants collection with section override support — v2.0
 - ✓ Variant preview endpoints (REST + Local API) — v2.0
+- ✓ Experiments collection with traffic allocation and variant-page validation — v3.0
+- ✓ Visitor ID with nanoid(21) and deterministic variant assignment — v3.0
+- ✓ Leads collection with experiment/variant/visitor attribution — v3.0
+- ✓ AnalyticsEvents collection with impression/conversion/click/custom types — v3.0
+- ✓ ExperimentStats RSC dashboard component with per-variant metrics — v3.0
 
 ### Active
 
 - [ ] Plugin extraction from dev app
-- [ ] Variant activation logic (draft/active/archived states)
-- [ ] A/B testing infrastructure and traffic splitting
 
 ### Out of Scope
 
@@ -50,7 +53,7 @@ Clean, typed content schema that balances editor flexibility with content consis
 
 ## Context
 
-Shipped v2.0 with 5,062 LOC TypeScript in the dev app.
+Shipped v3.0 with 7,726 LOC TypeScript in the dev app.
 Tech stack: Payload CMS 3.37.0, Next.js, MongoDB Memory Server for tests.
 Content model follows Contentful's modular, composable approach.
 
@@ -61,9 +64,12 @@ The `/src` folder contains publishable plugin code, while `/dev` contains the co
 - Stable blockIds on all blocks for analytics tracking
 - Validation at field and page level
 - Rendering contract with API endpoints
-- PageVariants for A/B testing preparation
+- PageVariants for section-level overrides
+- Experiments with traffic allocation and variant assignment
+- Leads and AnalyticsEvents for conversion tracking
+- Admin dashboard with experiment statistics
 
-**Test coverage:** 51 integration tests passing
+**Test coverage:** 76 integration tests passing
 
 ## Constraints
 
@@ -83,6 +89,9 @@ The `/src` folder contains publishable plugin code, while `/dev` contains the co
 | Field-level + collection-level hooks | Field hooks for normal cases, collection fallback for edge cases | ✓ Good — robust ID generation |
 | Section replacement for variants | Empty arrays = no override, non-empty = full replacement | ✓ Good — clear semantics |
 | Restricted Lexical editor | Prevent upload/relationship in richText fields | ✓ Good — simpler content model |
+| Simple string hash for bucketing | Sufficient for A/B traffic distribution | ✓ Good — lightweight, deterministic |
+| Pure visitor ID utility | Cookie setting is caller's responsibility | ✓ Good — flexible across API/RSC |
+| Traffic validation on running only | Allows incomplete draft experiments | ✓ Good — better editor experience |
 
 ---
-*Last updated: 2025-12-30 after v2.0 milestone*
+*Last updated: 2025-12-30 after v3.0 milestone*

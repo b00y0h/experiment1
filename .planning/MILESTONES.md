@@ -1,5 +1,32 @@
 # Project Milestones: Landing Page Content Model
 
+## v3.0 Live Experiments + Lead Tracking (Shipped: 2025-12-30)
+
+**Delivered:** Complete A/B testing infrastructure with experiments, visitor assignment, lead capture, analytics events, and admin dashboard.
+
+**Phases completed:** 10-14 (5 plans total)
+
+**Key accomplishments:**
+
+- Experiments collection with traffic allocation validation and variant-page consistency
+- Visitor ID system with nanoid(21) and deterministic variant assignment via hash bucketing
+- Leads collection with full experiment/variant/visitor attribution for conversion tracking
+- AnalyticsEvents collection with impression/conversion/click/custom event types
+- ExperimentStats RSC component with per-variant metrics and conversion rate calculation
+
+**Stats:**
+
+- 25 files created/modified
+- 7,726 lines of TypeScript (3,608 net new)
+- 5 phases, 5 plans, 12 tasks
+- 1 day from v2.0 to v3.0
+
+**Git range:** `feat(10-01)` → `feat(14-01)`
+
+**What's next:** Plugin extraction from dev app or additional experiment features
+
+---
+
 ## v2.0 Page Assembly + Variant Ready (Shipped: 2025-12-30)
 
 **Delivered:** Page assembly with rendering contract, validation guardrails, stable blockIds, and variant preview system for A/B testing.

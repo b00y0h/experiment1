@@ -12,7 +12,7 @@ None
 
 - ✅ [v1.0 MVP](milestones/v1.0-ROADMAP.md) (Phases 1-4) — SHIPPED 2025-12-30
 - ✅ [v2.0 Page Assembly + Variant Ready](milestones/v2.0-ROADMAP.md) (Phases 5-9) — SHIPPED 2025-12-30
-- 🚧 **v3.0 Live Experiments + Lead Tracking** — Phases 10-14 (in progress)
+- ✅ [v3.0 Live Experiments + Lead Tracking](milestones/v3.0-ROADMAP.md) (Phases 10-14) — SHIPPED 2025-12-30
 
 ## Completed Phases
 
@@ -37,62 +37,16 @@ None
 
 </details>
 
-## 🚧 v3.0 Live Experiments + Lead Tracking (In Progress)
+<details>
+<summary>v3.0 Live Experiments + Lead Tracking (Phases 10-14) — SHIPPED 2025-12-30</summary>
 
-**Milestone Goal:** Enable live A/B experiments with visitor tracking, variant assignment, and lead capture for landing page optimization.
+- [x] Phase 10: Experiment Collection (1/1 plans) — completed 2025-12-30
+- [x] Phase 11: Visitor Assignment (1/1 plans) — completed 2025-12-30
+- [x] Phase 12: Lead Capture (1/1 plans) — completed 2025-12-30
+- [x] Phase 13: Analytics Events (1/1 plans) — completed 2025-12-30
+- [x] Phase 14: Experiment Dashboard (1/1 plans) — completed 2025-12-31
 
-### Phase 10: Experiment Collection
-
-**Goal**: Create Experiments collection linking variants with traffic allocation and activation rules
-**Depends on**: Phase 9 (v2.0 complete)
-**Research**: Unlikely (internal collection patterns established)
-**Plans**: TBD
-
-Plans:
-- [x] 10-01: Experiments collection with validation + tests
-
-### Phase 11: Visitor Assignment
-
-**Goal**: Implement visitor identification and deterministic variant assignment logic
-**Depends on**: Phase 10
-**Research**: Likely (visitor identification strategies)
-**Research topics**: Cookie-based vs fingerprinting approaches, deterministic hashing for consistent assignment, privacy considerations
-**Plans**: TBD
-
-Plans:
-- [x] 11-01: Visitor ID + deterministic assignment + getAssignedVariant helper
-
-### Phase 12: Lead Capture
-
-**Goal**: Add Leads collection with experiment/variant attribution and form submission handling
-**Depends on**: Phase 11
-**Research**: Unlikely (CRUD patterns established)
-**Plans**: TBD
-
-Plans:
-- [x] 12-01: Leads collection with attribution + tests
-
-### Phase 13: Analytics Events
-
-**Goal**: Track impressions, conversions, and custom events per variant
-**Depends on**: Phase 12
-**Research**: Likely (event tracking patterns)
-**Research topics**: Event schema design, analytics integration options (GA4, Segment, custom), batch vs real-time
-**Plans**: TBD
-
-Plans:
-- [x] 13-01: AnalyticsEvents collection with event schema + tests
-
-### Phase 14: Experiment Dashboard
-
-**Goal**: Admin UI components for viewing experiment results and activating/pausing experiments
-**Depends on**: Phase 13
-**Research**: Likely (Payload admin customization)
-**Research topics**: Custom admin views in Payload 3.x, React components in admin, dashboard patterns
-**Plans**: TBD
-
-Plans:
-- [x] 14-01: ExperimentStats component + calculateExperimentStats utility
+</details>
 
 ## Progress
 
@@ -114,4 +68,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 11. Visitor Assignment | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 12. Lead Capture | v3.0 | 1/1 | Complete | 2025-12-30 |
 | 13. Analytics Events | v3.0 | 1/1 | Complete | 2025-12-30 |
-| 14. Experiment Dashboard | v3.0 | 1/1 | Complete | 2025-12-31 |
+| 14. Experiment Dashboard | v3.0 | 1/1 | Complete | 2025-12-30 |
+
+**All milestones complete.** Total: 14 phases, 18 plans across 3 milestones.
