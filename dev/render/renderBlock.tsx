@@ -1,5 +1,6 @@
 import React from 'react'
 
+import type { BlockTypeSlug } from '../blocks'
 import type { Page } from '../payload-types.js'
 
 // =============================================================================
@@ -24,6 +25,30 @@ export type RenderableBlock = ContentBlock | FooterBlock | HeroBlock
  * Extract blockType literals from the union for type-safe mapping
  */
 export type BlockType = RenderableBlock['blockType']
+
+// =============================================================================
+// COMPILE-TIME TYPE SYNC ASSERTION
+// =============================================================================
+
+/**
+ * Compile-time assertion: Page block types must match registry block types.
+ * If this fails, the block registry and Page schema are out of sync.
+ *
+ * This assertion ensures:
+ * 1. Every block in blockRegistry has a corresponding Page schema entry
+ * 2. Every block type in Page schema is defined in blockRegistry
+ *
+ * If you add a block to the registry without updating the Page collection
+ * (or vice versa), TypeScript will fail with a type error on _typeCheck.
+ */
+type AssertTypesMatch = BlockType extends BlockTypeSlug
+  ? BlockTypeSlug extends BlockType
+    ? true
+    : never
+  : never
+const _typeCheck: AssertTypesMatch = true
+// Prevent unused variable warning
+void _typeCheck
 
 /**
  * Map of blockType slugs to their React components

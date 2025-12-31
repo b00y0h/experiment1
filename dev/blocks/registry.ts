@@ -246,8 +246,11 @@ export type BlockRegistryEntry = {
  * - Schema generation (16-02)
  * - Frontend renderer mapping (Phase 17)
  * - AI catalog (Phase 19)
+ *
+ * IMPORTANT: Use `as const satisfies` to preserve literal types for keys.
+ * This allows BlockTypeSlug to be a union of literal strings, not just `string`.
  */
-export const blockRegistry: Record<string, BlockRegistryEntry> = {
+export const blockRegistry = {
   accordionBlock: {
     slug: 'accordionBlock',
     allowedSections: ['content'],
@@ -290,10 +293,17 @@ export const blockRegistry: Record<string, BlockRegistryEntry> = {
     factory: statsBlock,
     label: 'Stats Block',
   },
-}
+} satisfies Record<string, BlockRegistryEntry>
+
+/**
+ * Type-safe union of all block type slugs derived from registry keys.
+ * Single source of truth for block type names - adding a block to registry
+ * automatically includes it in this union.
+ */
+export type BlockTypeSlug = keyof typeof blockRegistry
 
 /** Get all block slugs from the registry */
-export const getBlockSlugs = (): string[] => Object.keys(blockRegistry)
+export const getBlockSlugs = (): BlockTypeSlug[] => Object.keys(blockRegistry) as BlockTypeSlug[]
 
 /** Get blocks allowed in a specific section */
 export const getBlocksForSection = (section: 'content' | 'footer' | 'hero'): Block[] =>

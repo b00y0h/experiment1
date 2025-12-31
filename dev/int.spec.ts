@@ -3615,4 +3615,25 @@ describe('renderBlock', () => {
       expect(displayName).toBeDefined()
     }
   })
+
+  test('registry slugs match Page block types', () => {
+    // Get slugs from registry (single source of truth)
+    const registrySlugs = getBlockSlugs().sort()
+
+    // Expected Page block types (what Payload types allow)
+    // This is a runtime verification of the compile-time contract
+    const pageBlockTypes: RenderableBlock['blockType'][] = [
+      'accordionBlock',
+      'contentBlock',
+      'faqBlock',
+      'footerBlock',
+      'heroBlock',
+      'reusableBlockRef',
+      'statsBlock',
+    ]
+    const payloadSlugs = [...pageBlockTypes].sort()
+
+    // Registry and Page schema should have identical block type lists
+    expect(registrySlugs).toEqual(payloadSlugs)
+  })
 })

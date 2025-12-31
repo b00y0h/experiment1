@@ -25,4 +25,4 @@ export {
   statsBlock,
 } from './registry'
 
-export type { BlockRegistryEntry } from './registry'
+export type { BlockRegistryEntry, BlockTypeSlug } from './registry'
