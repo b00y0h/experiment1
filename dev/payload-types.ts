@@ -215,6 +215,20 @@ export interface Experiment {
    */
   status?: ('draft' | 'running' | 'paused' | 'completed') | null;
   /**
+   * Block types AI can use for this experiment (empty = all allowed)
+   */
+  allowedBlockTypes?:
+    | (
+        | 'accordionBlock'
+        | 'contentBlock'
+        | 'faqBlock'
+        | 'footerBlock'
+        | 'heroBlock'
+        | 'reusableBlockRef'
+        | 'statsBlock'
+      )[]
+    | null;
+  /**
    * When experiment activates (optional, null = manual activation)
    */
   startDate?: string | null;
@@ -1075,6 +1089,7 @@ export interface ExperimentsSelect<T extends boolean = true> {
         id?: T;
       };
   status?: T;
+  allowedBlockTypes?: T;
   startDate?: T;
   endDate?: T;
   updatedAt?: T;

@@ -2,6 +2,8 @@ import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
 import { ValidationError } from 'payload'
 
+import { blockRegistry, getBlockSlugs } from '../blocks/registry.js'
+
 type ExperimentVariant = {
   trafficPercent?: number
   variant?: { id: number | string; page?: { id: number | string } | number | string } | number | string
@@ -215,6 +217,15 @@ export const Experiments: CollectionConfig = {
         { label: 'Paused', value: 'paused' },
         { label: 'Completed', value: 'completed' },
       ],
+    },
+    {
+      name: 'allowedBlockTypes',
+      type: 'select',
+      admin: {
+        description: 'Block types AI can use for this experiment (empty = all allowed)',
+      },
+      hasMany: true,
+      options: getBlockSlugs().map((slug) => ({ label: blockRegistry[slug].label, value: slug })),
     },
     {
       name: 'startDate',

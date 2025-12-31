@@ -13,7 +13,7 @@ None
 - ✅ [v1.0 MVP](milestones/v1.0-ROADMAP.md) (Phases 1-4) — SHIPPED 2025-12-30
 - ✅ [v2.0 Page Assembly + Variant Ready](milestones/v2.0-ROADMAP.md) (Phases 5-9) — SHIPPED 2025-12-30
 - ✅ [v3.0 Live Experiments + Lead Tracking](milestones/v3.0-ROADMAP.md) (Phases 10-14) — SHIPPED 2025-12-30
-- 🚧 **v4.0 Block ↔ Component Sync + AI Catalog** — Phases 15-19 (in progress)
+- ✅ **v4.0 Block ↔ Component Sync + AI Catalog** — SHIPPED 2025-12-31
 
 ## Completed Phases
 
@@ -75,9 +75,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 16. Block Registry | v4.0 | 2/2 | Complete | 2025-12-31 |
 | 17. Frontend Renderer Mapping | v4.0 | 1/1 | Complete | 2025-12-31 |
 | 18. Drift-Proof Type Sync | v4.0 | 2/2 | Complete | 2025-12-31 |
-| 19. AI-Ready Catalog | v4.0 | 1/2 | In progress | - |
+| 19. AI-Ready Catalog | v4.0 | 2/2 | Complete | 2025-12-31 |
 
-## 🚧 v4.0 Block ↔ Component Sync + AI Catalog (In Progress)
+## ✅ v4.0 Block ↔ Component Sync + AI Catalog — SHIPPED 2025-12-31
 
 **Milestone Goal:** Frontend renderer mapping that stays in lockstep with Payload block definitions, plus an auto-updating AI catalog of allowed blocks for experiments.
 
@@ -133,4 +133,4 @@ Plans:
 
 Plans:
 - [x] 19-01: Publish "available blocks" catalog endpoint for AI + tooling
-- [ ] 19-02: Add allowlists/guardrails for AI experiments
+- [x] 19-02: Add allowlists/guardrails for AI experiments

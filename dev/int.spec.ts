@@ -5,6 +5,7 @@ import { createPayloadRequest, getPayload } from 'payload'
 import { isValidElement } from 'react'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
+import type { BlockTypeSlug } from './blocks/registry.js'
 import type { RenderableBlock } from './render/index.js'
 
 import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
@@ -14,6 +15,7 @@ import { resolvedPageHandler } from './endpoints/resolvedPage.js'
 import { resolvedPageWithVariantHandler } from './endpoints/resolvedPageWithVariant.js'
 import { getBlockComponent, renderBlock, renderBlockSafe, UnknownBlock } from './render/index.js'
 import { assignVariantByTraffic } from './utils/assignVariant.js'
+import { getAllowedBlocks, isBlockAllowed } from './utils/experimentGuardrails.js'
 import { calculateExperimentStats } from './utils/experimentStats.js'
 import { getAssignedVariant } from './utils/getAssignedVariant.js'
 import { getResolvedPage } from './utils/getResolvedPage.js'
@@ -3780,5 +3782,67 @@ describe('Block Catalog Endpoint', () => {
     const ctaTextField = ctaField.nestedFields.find((f: { name: string }) => f.name === 'ctaText')
     expect(ctaTextField).toBeDefined()
     expect(ctaTextField.type).toBe('text')
+  })
+})
+
+describe('Experiment Guardrails', () => {
+  test('experiment with no allowedBlockTypes allows all blocks', () => {
+    // All block types should be allowed when allowedBlockTypes is null/undefined/empty
+    const allBlockSlugs = getBlockSlugs()
+
+    // Test with null
+    for (const slug of allBlockSlugs) {
+      expect(isBlockAllowed(slug, null)).toBe(true)
+    }
+
+    // Test with undefined
+    for (const slug of allBlockSlugs) {
+      expect(isBlockAllowed(slug, undefined)).toBe(true)
+    }
+
+    // Test with empty array
+    for (const slug of allBlockSlugs) {
+      expect(isBlockAllowed(slug, [])).toBe(true)
+    }
+  })
+
+  test('experiment with allowedBlockTypes restricts to specified', () => {
+    const allowedBlockTypes: BlockTypeSlug[] = ['heroBlock', 'contentBlock']
+
+    // Allowed blocks should return true
+    expect(isBlockAllowed('heroBlock', allowedBlockTypes)).toBe(true)
+    expect(isBlockAllowed('contentBlock', allowedBlockTypes)).toBe(true)
+
+    // Non-allowed blocks should return false
+    expect(isBlockAllowed('faqBlock', allowedBlockTypes)).toBe(false)
+    expect(isBlockAllowed('accordionBlock', allowedBlockTypes)).toBe(false)
+    expect(isBlockAllowed('statsBlock', allowedBlockTypes)).toBe(false)
+    expect(isBlockAllowed('footerBlock', allowedBlockTypes)).toBe(false)
+    expect(isBlockAllowed('reusableBlockRef', allowedBlockTypes)).toBe(false)
+  })
+
+  test('getAllowedBlocks returns subset when restricted', () => {
+    const allowedBlockTypes: BlockTypeSlug[] = ['heroBlock', 'contentBlock']
+
+    const result = getAllowedBlocks(allowedBlockTypes)
+
+    expect(result).toEqual(['heroBlock', 'contentBlock'])
+    expect(result.length).toBe(2)
+  })
+
+  test('getAllowedBlocks returns all when unrestricted', () => {
+    const allBlockSlugs = getBlockSlugs()
+
+    // Test with null
+    expect(getAllowedBlocks(null)).toEqual(allBlockSlugs)
+    expect(getAllowedBlocks(null).length).toBe(7)
+
+    // Test with undefined
+    expect(getAllowedBlocks(undefined)).toEqual(allBlockSlugs)
+    expect(getAllowedBlocks(undefined).length).toBe(7)
+
+    // Test with empty array
+    expect(getAllowedBlocks([])).toEqual(allBlockSlugs)
+    expect(getAllowedBlocks([]).length).toBe(7)
   })
 })
