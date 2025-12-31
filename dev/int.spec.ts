@@ -2,11 +2,16 @@ import type { Payload } from 'payload'
 
 import config from '@payload-config'
 import { createPayloadRequest, getPayload } from 'payload'
+import { isValidElement } from 'react'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
+import type { RenderableBlock } from './render/index.js'
+
 import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
+import { getBlockSlugs } from './blocks/registry.js'
 import { resolvedPageHandler } from './endpoints/resolvedPage.js'
 import { resolvedPageWithVariantHandler } from './endpoints/resolvedPageWithVariant.js'
+import { getBlockComponent, renderBlock, renderBlockSafe, UnknownBlock } from './render/index.js'
 import { assignVariantByTraffic } from './utils/assignVariant.js'
 import { calculateExperimentStats } from './utils/experimentStats.js'
 import { getAssignedVariant } from './utils/getAssignedVariant.js'
@@ -3481,6 +3486,133 @@ describe('Experiment Stats calculation', () => {
 
       // No winning variant when no conversions
       expect(experimentStats.winningVariantId).toBeUndefined()
+    }
+  })
+})
+
+// =============================================================================
+// renderBlock dispatch tests
+// =============================================================================
+
+describe('renderBlock', () => {
+  test('dispatches to correct placeholder for each block type', () => {
+    // Test each of the 7 block types
+    const testBlocks: RenderableBlock[] = [
+      {
+        blockType: 'heroBlock',
+        headline: 'Test Hero',
+      },
+      {
+        blockType: 'contentBlock',
+        body: null,
+      },
+      {
+        blockType: 'accordionBlock',
+        items: [{ id: '1', title: 'Test Item' }],
+      },
+      {
+        blockType: 'faqBlock',
+        items: [{ id: '1', question: 'Test Question?' }],
+      },
+      {
+        blockType: 'statsBlock',
+        items: [{ id: '1', label: 'Users', value: '1000' }],
+      },
+      {
+        blockType: 'footerBlock',
+        text: 'Test Footer',
+      },
+      {
+        block: 'test-block-id',
+        blockType: 'reusableBlockRef',
+      },
+    ]
+
+    for (const block of testBlocks) {
+      const result = renderBlock(block)
+
+      // Verify we get a valid React element back
+      expect(isValidElement(result)).toBe(true)
+
+      // Verify the element type has the correct displayName
+      if (isValidElement(result) && typeof result.type === 'function') {
+        const displayName = (result.type as { displayName?: string }).displayName
+        expect(displayName).toBeDefined()
+        // displayName should match pattern: BlockTypePlaceholder
+        expect(displayName).toMatch(/Placeholder$/)
+      }
+    }
+  })
+
+  test('returns UnknownBlock for unrecognized blockType using renderBlockSafe', () => {
+    // Create a block with an unknown blockType (cast to bypass TS)
+    const unknownBlock = {
+      blockType: 'unknownBlockType',
+      data: 'some data',
+    }
+
+    const result = renderBlockSafe(unknownBlock)
+
+    // Verify we get a valid React element back
+    expect(isValidElement(result)).toBe(true)
+
+    // Verify the element type is UnknownBlock
+    if (isValidElement(result)) {
+      expect(result.type).toBe(UnknownBlock)
+    }
+  })
+
+  test('all registered block types have corresponding renderer', () => {
+    // Get all registered block slugs from the registry
+    const registeredSlugs = getBlockSlugs()
+
+    // Verify we have the expected 7 block types
+    expect(registeredSlugs).toHaveLength(7)
+
+    // For each registered slug, verify a component exists
+    for (const slug of registeredSlugs) {
+      const component = getBlockComponent(slug as RenderableBlock['blockType'])
+      expect(component).toBeDefined()
+      expect(typeof component).toBe('function')
+    }
+  })
+
+  test('renderBlockSafe handles known block types correctly', () => {
+    // A known block type should be rendered by the regular dispatch
+    const knownBlock = {
+      blockType: 'heroBlock',
+      headline: 'Test Hero via Safe',
+    }
+
+    const result = renderBlockSafe(knownBlock)
+
+    expect(isValidElement(result)).toBe(true)
+
+    // Should not be UnknownBlock
+    if (isValidElement(result)) {
+      expect(result.type).not.toBe(UnknownBlock)
+    }
+  })
+
+  test('getBlockComponent returns correct component for each block type', () => {
+    const blockTypes: RenderableBlock['blockType'][] = [
+      'heroBlock',
+      'contentBlock',
+      'accordionBlock',
+      'faqBlock',
+      'statsBlock',
+      'footerBlock',
+      'reusableBlockRef',
+    ]
+
+    for (const blockType of blockTypes) {
+      const component = getBlockComponent(blockType)
+      expect(component).toBeDefined()
+      expect(typeof component).toBe('function')
+
+      // Each component should have a displayName for debugging
+      const displayName = (component as { displayName?: string }).displayName
+      expect(displayName).toBeDefined()
     }
   })
 })

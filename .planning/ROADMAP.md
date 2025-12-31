@@ -73,7 +73,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | 15. Repo Normalization | v4.0 | 1/1 | Complete | 2025-12-31 |
 | 16. Block Registry | v4.0 | 2/2 | Complete | 2025-12-31 |
-| 17. Frontend Renderer Mapping | v4.0 | 0/1 | Not started | - |
+| 17. Frontend Renderer Mapping | v4.0 | 1/1 | Complete | 2025-12-31 |
 | 18. Drift-Proof Type Sync | v4.0 | 0/2 | Not started | - |
 | 19. AI-Ready Catalog | v4.0 | 0/2 | Not started | - |
 
@@ -110,7 +110,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 17-01: Implement renderBlock() dispatch + unknown-block handling
+- [x] 17-01: Implement renderBlock() dispatch + unknown-block handling
 
 ### Phase 18: Drift-Proof Type Sync
 
